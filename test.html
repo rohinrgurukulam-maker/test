@@ -1,0 +1,1550 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduSphere Hub - Smart Learning Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50: '#f0f9ff', 100: '#e0f2fe', 500: '#0284c7', 600: '#0369a1', 700: '#075985', 900: '#0c4a6e' }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.4); border-radius: 9999px; }
+    .perspective-1000 { perspective: 1000px; }
+    .transform-style-3d { transform-style: preserve-3d; }
+    .backface-hidden { backface-visibility: hidden; }
+    .rotate-y-180 { transform: rotateY(180deg); }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
+
+  <!-- Top Navigation Header & Admin Bar -->
+  <header class="sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+    <div id="admin-bar" class="hidden bg-amber-500 text-slate-950 font-semibold px-4 py-1.5 text-xs sm:text-sm flex justify-between items-center shadow-inner">
+      <div class="flex items-center gap-2">
+        <i class="fa-solid fa-user-shield text-base"></i>
+        <span><strong>Admin Mode Active:</strong> Edit titles, upload multiple files per section, or configure paths.</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="resetToDefaults()" class="bg-amber-700 hover:bg-amber-800 text-white px-2 py-0.5 rounded text-xs transition">Reset All Data</button>
+        <button onclick="logoutAdmin()" class="bg-slate-900 text-white px-2.5 py-0.5 rounded-md hover:bg-slate-800 transition text-xs flex items-center gap-1">
+          <i class="fa-solid fa-right-from-bracket"></i> Exit Admin
+        </button>
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center gap-3">
+          <div onclick="navigateTo('classes')" class="flex items-center gap-2 cursor-pointer group">
+            <div class="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center text-white font-bold text-xl shadow-md group-hover:scale-105 transition">
+              <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <span class="text-xl font-bold bg-gradient-to-r from-brand-600 to-indigo-500 bg-clip-text text-transparent">EduSphere</span>
+          </div>
+
+          <nav id="breadcrumb" class="hidden md:flex items-center gap-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium ml-4">
+            <!-- Dynamic Breadcrumb Navigation -->
+          </nav>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button onclick="toggleTheme()" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition" title="Toggle Theme">
+            <i id="theme-icon" class="fa-solid fa-moon text-lg"></i>
+          </button>
+
+          <div id="admin-auth-btn">
+            <button onclick="openAdminModal()" class="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-brand-500 hover:text-white transition font-medium text-xs sm:text-sm flex items-center gap-2">
+              <i class="fa-solid fa-lock"></i>
+              <span id="admin-btn-text">Admin Login</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main View Area -->
+  <main id="app-content" class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <!-- Rendered dynamically -->
+  </main>
+
+  <!-- Dynamic Modal Form -->
+  <div id="action-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700 relative max-h-[90vh] flex flex-col overflow-hidden">
+      <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-100 dark:border-slate-700">
+        <h3 id="modal-title" class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">Modal Title</h3>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+          <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
+      </div>
+      <form id="modal-form" onsubmit="handleModalSubmit(event)" class="space-y-4 overflow-y-auto pr-1 flex-grow">
+        <div id="modal-fields" class="space-y-4">
+          <!-- Inputs dynamically populated -->
+        </div>
+        <div class="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700 mt-auto">
+          <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium text-xs">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-medium text-xs shadow-md">Add / Save Item</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Admin Login Security Modal -->
+  <div id="admin-login-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700 relative">
+      <button onclick="closeAdminModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-200">
+        <i class="fa-solid fa-xmark text-xl"></i>
+      </button>
+      <div class="text-center mb-6">
+        <div class="w-12 h-12 bg-amber-500/10 text-amber-500 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 dark:text-white">Admin Authentication</h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Enter password <strong>7655</strong> to unlock edit rights</p>
+      </div>
+      <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+        <div>
+          <input type="password" id="admin-password-input" placeholder="Passcode" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-center font-mono text-lg tracking-widest outline-none focus:ring-2 focus:ring-amber-500" />
+          <p id="admin-login-error" class="text-red-500 text-xs mt-1.5 hidden text-center font-medium">Invalid passcode. Please try again.</p>
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-sm shadow-md">
+          Verify & Unlock
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- File Lightbox Overlay -->
+  <div id="file-lightbox" class="fixed inset-0 z-50 bg-black/90 hidden flex items-center justify-center p-4">
+    <div class="relative max-w-5xl w-full max-h-[90vh] bg-slate-900 rounded-2xl p-4 flex flex-col items-center">
+      <button onclick="closeLightbox()" class="absolute top-3 right-4 text-white hover:text-slate-300 text-xl z-10"><i class="fa-solid fa-xmark"></i></button>
+      <div id="lightbox-container" class="w-full h-full flex items-center justify-center overflow-hidden rounded-xl">
+        <!-- Preview Content -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- RESTRICTION MAPPING ---
+    const FILE_RESTRICTIONS = {
+      audio: { accept: ".mp3,.wav,.mp4", label: "Audio (.MP3, .WAV, .MP4)" },
+      video: { accept: ".mp4,.mov", label: "Video (.MP4, .MOV)" },
+      notes: { accept: ".pdf", label: "Notes / Reports (.PDF)" },
+      flashcards: { accept: ".csv", label: "Flashcards (.CSV - Front, Back)" },
+      slides: { accept: ".pdf,.ppt,.pptx", label: "Slides (.PDF, .PPT, .PPTX)" },
+      quiz: { accept: ".csv", label: "Quiz (.CSV - Question, Opt1, Opt2, Opt3, Opt4, CorrectIdx)" },
+      infographic: { accept: ".jpg,.jpeg,.png,.pdf", label: "Infographic (.JPG, .PNG, .PDF)" },
+      datatable: { accept: ".csv", label: "Data Table (.CSV)" }
+    };
+
+    // --- INITIAL SEED DATA WITH MULTI-FILE ARRAYS ---
+    const INITIAL_DATA = {
+      classes: [
+        {
+          id: "cls-10",
+          name: "Class 10",
+          description: "Secondary Education Level Curriculum",
+          mediums: [
+            {
+              id: "med-en",
+              name: "English Medium",
+              code: "ENG",
+              icon: "fa-language",
+              subjects: [
+                {
+                  id: "sbj-phy",
+                  name: "Physics",
+                  code: "PHY10",
+                  description: "General Physics Concepts & Mechanics",
+                  icon: "fa-bolt",
+                  chapters: [
+                    {
+                      id: "ch-optics",
+                      name: "Optics & Light Reflection",
+                      description: "Laws of reflection, spherical mirrors, refraction, Snell's law, and optical instruments.",
+                      resources: {
+                        audio: [
+                          { id: "aud-1", title: "Optics Core Lecture", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", type: "audio/mp3", content: "Introduction to Reflection & Spherical Mirror Laws." }
+                        ],
+                        video: [
+                          { id: "vid-1", title: "Spherical Mirrors & Ray Diagrams", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4", type: "video/mp4", content: "Ray tracing tutorial for concave and convex mirrors." },
+                          { id: "vid-2", title: "Refraction & Snell's Law Experiment", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4", type: "video/mp4", content: "Laboratory demonstration of refraction index." }
+                        ],
+                        notes: [
+                          { id: "not-1", title: "Comprehensive Optics Notes", url: "optics_notes.pdf", content: "### Optics Standard Formulas\n1. Mirror Formula: 1/f = 1/v + 1/u\n2. Magnification: m = -v/u\n3. Snell's Law: n1 * sin(i) = n2 * sin(r)\n4. Power of Lens: P = 1/f (in meters)" }
+                        ],
+                        flashcards: [
+                          { id: "fc-1", q: "What is the unit of power of a lens?", a: "Diopter (D)" },
+                          { id: "fc-2", q: "What is the mirror formula?", a: "1/f = 1/v + 1/u" },
+                          { id: "fc-3", q: "Which mirror is used as a rear-view mirror in vehicles?", a: "Convex Mirror" }
+                        ],
+                        slides: [
+                          { id: "sld-1", title: "Optics Slide Deck Part 1", url: "optics_deck.pdf", type: "pdf", content: "Presentation deck covering mirror ray diagrams." }
+                        ],
+                        mindmap: {
+                          name: "Optics & Light",
+                          children: [
+                            { name: "Reflection", color: "#0284c7", children: [{ name: "Concave Mirrors" }, { name: "Convex Mirrors" }] },
+                            { name: "Refraction", color: "#10b981", children: [{ name: "Snell's Law" }, { name: "Lenses & Power" }] }
+                          ]
+                        },
+                        quiz: [
+                          { id: "qz-1", question: "What is the SI unit of power of a lens?", options: ["Diopter", "Meter", "Watt", "Joule"], answer: 0 },
+                          { id: "qz-2", question: "Focal length of a flat plane mirror is?", options: ["Zero", "Infinite", "10 cm", "-1 cm"], answer: 1 }
+                        ],
+                        infographic: [
+                          { id: "inf-1", title: "Ray Diagram Cheat Sheet", url: "https://placehold.co/1200x800/0284c7/ffffff?text=Optics+Ray+Diagrams+Infographic", type: "image/png" }
+                        ],
+                        datatable: [
+                          {
+                            id: "dt-1",
+                            columns: ["Medium", "Refractive Index (n)", "Speed of Light (km/s)"],
+                            rows: [
+                              ["Vacuum", "1.00", "300,000"],
+                              ["Air", "1.0003", "299,700"],
+                              ["Water", "1.33", "225,000"],
+                              ["Glass", "1.52", "197,000"],
+                              ["Diamond", "2.42", "124,000"]
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              id: "med-ml",
+              name: "Malayalam Medium (മലയാളം)",
+              code: "MAL",
+              icon: "fa-book-open",
+              subjects: [
+                {
+                  id: "sbj-phy-mal",
+                  name: "ഭൗതികശാസ്ത്രം (Physics)",
+                  code: "PHY10-MAL",
+                  description: "ഭൗതികശാസ്ത്ര തത്വങ്ങളും പരീക്ഷണങ്ങളും",
+                  icon: "fa-atom",
+                  chapters: [
+                    {
+                      id: "ch-optics-mal",
+                      name: "പ്രകാശം - പ്രതിപത്തനവും അപവർത്തനവും",
+                      description: "പ്രകാശത്തിന്റെ നിയമങ്ങൾ, ലെൻസുകൾ, ദർപ്പണങ്ങൾ.",
+                      resources: {
+                        notes: [
+                          { id: "not-mal-1", title: "പ്രകാശ ശാസ്ത്ര പാഠഭാഗ കുറിപ്പുകൾ", content: "### പ്രധാന ഫോർമുലകൾ\n1. ലെൻസ് സൂത്രവാക്യം: 1/f = 1/v - 1/u\n2. പവർ (P) = 1/f (മീറ്ററിൽ)" }
+                        ],
+                        flashcards: [
+                          { id: "fc-mal-1", q: "ലെൻസ് പവറിന്റെ യൂണിറ്റ് എന്താണ്?", a: "ഡയോപ്റ്റർ (Diopter)" }
+                        ],
+                        quiz: [
+                          { id: "qz-mal-1", question: "സമതല ദർപ്പണത്തിന്റെ ഫോക്കസ് ദൂരം എത്ര?", options: ["പൂജ്യം", "അനന്തം", "10 cm", "1 cm"], answer: 1 }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    let appState = {
+      isAdmin: false,
+      theme: 'dark',
+      currentView: 'classes',
+      selectedClassId: null,
+      selectedMediumId: null,
+      selectedSubjectId: null,
+      selectedChapterId: null,
+      selectedTab: 'video',
+      data: INITIAL_DATA
+    };
+
+    // --- LOCAL STORAGE PERSISTENCE ---
+    function loadState() {
+      const saved = localStorage.getItem('edusphere_v3_data');
+      if (saved) {
+        try { appState.data = JSON.parse(saved); } catch(e) { console.error(e); }
+      }
+      if (localStorage.getItem('edusphere_admin') === 'true') appState.isAdmin = true;
+      appState.theme = localStorage.getItem('edusphere_theme') || 'dark';
+      applyTheme();
+    }
+
+    function saveData() {
+      localStorage.setItem('edusphere_v3_data', JSON.stringify(appState.data));
+    }
+
+    function resetToDefaults() {
+      if (confirm("Reset all classes, subjects, and uploaded resources to defaults?")) {
+        appState.data = INITIAL_DATA;
+        saveData();
+        renderBreadcrumb();
+        renderView();
+      }
+    }
+
+    // --- THEME MANAGEMENT ---
+    function toggleTheme() {
+      appState.theme = appState.theme === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('edusphere_theme', appState.theme);
+      applyTheme();
+    }
+
+    function applyTheme() {
+      const html = document.documentElement;
+      const icon = document.getElementById('theme-icon');
+      if (appState.theme === 'dark') {
+        html.classList.add('dark');
+        icon.className = "fa-solid fa-sun text-yellow-400";
+      } else {
+        html.classList.remove('dark');
+        icon.className = "fa-solid fa-moon text-slate-700";
+      }
+    }
+
+    // --- AUTH MANAGEMENT ---
+    function openAdminModal() {
+      if (appState.isAdmin) logoutAdmin();
+      else document.getElementById('admin-login-modal').classList.remove('hidden');
+    }
+
+    function closeAdminModal() {
+      document.getElementById('admin-login-modal').classList.add('hidden');
+      document.getElementById('admin-login-error').classList.add('hidden');
+    }
+
+    function handleAdminLogin(e) {
+      e.preventDefault();
+      const val = document.getElementById('admin-password-input').value;
+      if (val === '7655') {
+        appState.isAdmin = true;
+        localStorage.setItem('edusphere_admin', 'true');
+        closeAdminModal();
+        updateAdminUI();
+        renderView();
+      } else {
+        document.getElementById('admin-login-error').classList.remove('hidden');
+      }
+    }
+
+    function logoutAdmin() {
+      appState.isAdmin = false;
+      localStorage.setItem('edusphere_admin', 'false');
+      updateAdminUI();
+      renderView();
+    }
+
+    function updateAdminUI() {
+      const bar = document.getElementById('admin-bar');
+      const text = document.getElementById('admin-btn-text');
+      if (appState.isAdmin) {
+        bar.classList.remove('hidden');
+        text.textContent = "Exit Admin";
+      } else {
+        bar.classList.add('hidden');
+        text.textContent = "Admin Login";
+      }
+    }
+
+    // --- NAVIGATION ROUTER & BREADCRUMBS ---
+    function navigateTo(view, classId = null, mediumId = null, subjectId = null, chapterId = null) {
+      appState.currentView = view;
+      if (classId !== null) appState.selectedClassId = classId;
+      if (mediumId !== null) appState.selectedMediumId = mediumId;
+      if (subjectId !== null) appState.selectedSubjectId = subjectId;
+      if (chapterId !== null) appState.selectedChapterId = chapterId;
+      renderBreadcrumb();
+      renderView();
+    }
+
+    function renderBreadcrumb() {
+      const container = document.getElementById('breadcrumb');
+      let html = `<span class="cursor-pointer hover:text-brand-500" onclick="navigateTo('classes')">Classes</span>`;
+
+      const curClass = appState.data.classes.find(c => c.id === appState.selectedClassId);
+      if (curClass && ['mediums', 'subjects', 'chapters', 'chapter-detail'].includes(appState.currentView)) {
+        html += ` <i class="fa-solid fa-chevron-right text-[10px]"></i> <span class="cursor-pointer hover:text-brand-500" onclick="navigateTo('mediums', '${curClass.id}')">${curClass.name}</span>`;
+      }
+
+      const curMedium = curClass?.mediums?.find(m => m.id === appState.selectedMediumId);
+      if (curMedium && ['subjects', 'chapters', 'chapter-detail'].includes(appState.currentView)) {
+        html += ` <i class="fa-solid fa-chevron-right text-[10px]"></i> <span class="cursor-pointer hover:text-brand-500" onclick="navigateTo('subjects', '${curClass.id}', '${curMedium.id}')">${curMedium.name}</span>`;
+      }
+
+      const curSubject = curMedium?.subjects?.find(s => s.id === appState.selectedSubjectId);
+      if (curSubject && ['chapters', 'chapter-detail'].includes(appState.currentView)) {
+        html += ` <i class="fa-solid fa-chevron-right text-[10px]"></i> <span class="cursor-pointer hover:text-brand-500" onclick="navigateTo('chapters', '${curClass.id}', '${curMedium.id}', '${curSubject.id}')">${curSubject.name}</span>`;
+      }
+
+      const curChapter = curSubject?.chapters?.find(ch => ch.id === appState.selectedChapterId);
+      if (curChapter && appState.currentView === 'chapter-detail') {
+        html += ` <i class="fa-solid fa-chevron-right text-[10px]"></i> <span class="text-slate-900 dark:text-white font-semibold">${curChapter.name}</span>`;
+      }
+
+      container.innerHTML = html;
+    }
+
+    // --- MAIN VIEW RENDERER ---
+    function renderView() {
+      const main = document.getElementById('app-content');
+      switch (appState.currentView) {
+        case 'classes': renderClassesView(main); break;
+        case 'mediums': renderMediumsView(main); break;
+        case 'subjects': renderSubjectsView(main); break;
+        case 'chapters': renderChaptersView(main); break;
+        case 'chapter-detail': renderChapterDetailView(main); break;
+      }
+    }
+
+    // 1. CLASS VIEW
+    function renderClassesView(container) {
+      let html = `
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Academic Classes</h1>
+            <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mt-0.5">Select a class level to proceed to language medium selection.</p>
+          </div>
+          ${appState.isAdmin ? `
+            <button onclick="openModal('addClass')" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold text-xs shadow-md transition flex items-center gap-2">
+              <i class="fa-solid fa-plus font-bold"></i> Add Class
+            </button>
+          ` : ''}
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      `;
+
+      appState.data.classes.forEach(cls => {
+        html += `
+          <div class="bg-white dark:bg-slate-800/90 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm hover:shadow-xl transition flex flex-col justify-between group">
+            <div>
+              <div class="flex justify-between items-start mb-4">
+                <div class="w-12 h-12 rounded-2xl bg-brand-50 dark:bg-slate-700 text-brand-600 dark:text-brand-400 flex items-center justify-center text-2xl group-hover:scale-105 transition">
+                  <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                ${appState.isAdmin ? `
+                  <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs">
+                    <button onclick="openModal('editClass', '${cls.id}')" class="p-1.5 text-slate-500 hover:text-brand-500" title="Edit Class Title"><i class="fa-solid fa-pen"></i></button>
+                    <button onclick="deleteClass('${cls.id}')" class="p-1.5 text-slate-500 hover:text-red-500" title="Delete Class"><i class="fa-solid fa-trash"></i></button>
+                  </div>
+                ` : ''}
+              </div>
+              <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-1">${cls.name}</h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400">${cls.description || 'Instructional Modules & Resources'}</p>
+            </div>
+            <div class="pt-4 mt-6 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between">
+              <span class="text-xs font-semibold text-slate-400">${cls.mediums?.length || 0} Mediums</span>
+              <button onclick="navigateTo('mediums', '${cls.id}')" class="px-4 py-2 rounded-xl bg-brand-50 dark:bg-brand-900/40 text-brand-600 dark:text-brand-300 font-semibold text-xs hover:bg-brand-600 hover:text-white transition flex items-center gap-1.5">
+                Select Medium <i class="fa-solid fa-arrow-right text-[10px]"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      });
+
+      html += `</div>`;
+      container.innerHTML = html;
+    }
+
+    // 2. MEDIUM VIEW
+    function renderMediumsView(container) {
+      const curClass = appState.data.classes.find(c => c.id === appState.selectedClassId);
+      if (!curClass) return navigateTo('classes');
+
+      let html = `
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <div>
+            <button onclick="navigateTo('classes')" class="text-xs font-bold text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1 mb-1">
+              <i class="fa-solid fa-arrow-left"></i> Back to Classes
+            </button>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">${curClass.name} - Select Medium</h1>
+            <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm">Choose instruction language for ${curClass.name}.</p>
+          </div>
+          ${appState.isAdmin ? `
+            <button onclick="openModal('addMedium')" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold text-xs shadow-md transition flex items-center gap-2">
+              <i class="fa-solid fa-plus font-bold"></i> Add Medium
+            </button>
+          ` : ''}
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl">
+      `;
+
+      if (!curClass.mediums || curClass.mediums.length === 0) {
+        html += `<div class="col-span-full text-center py-12 bg-white dark:bg-slate-800 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 text-slate-400 text-sm">No medium configured for ${curClass.name}.</div>`;
+      } else {
+        curClass.mediums.forEach(med => {
+          html += `
+            <div class="bg-white dark:bg-slate-800/90 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm hover:shadow-xl transition flex flex-col justify-between group">
+              <div>
+                <div class="flex justify-between items-start mb-4">
+                  <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-2xl group-hover:scale-105 transition">
+                    <i class="fa-solid ${med.icon || 'fa-language'}"></i>
+                  </div>
+                  ${appState.isAdmin ? `
+                    <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs">
+                      <button onclick="openModal('editMedium', '${med.id}')" class="p-1.5 text-slate-500 hover:text-brand-500"><i class="fa-solid fa-pen"></i></button>
+                      <button onclick="deleteMedium('${med.id}')" class="p-1.5 text-slate-500 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                  ` : ''}
+                </div>
+                <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-1">${med.name}</h2>
+                <span class="inline-block px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-mono font-semibold">${med.code || 'LANG'}</span>
+              </div>
+              <div class="pt-4 mt-6 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between">
+                <span class="text-xs font-semibold text-slate-400">${med.subjects?.length || 0} Subjects</span>
+                <button onclick="navigateTo('subjects', '${curClass.id}', '${med.id}')" class="px-4 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300 font-semibold text-xs hover:bg-indigo-600 hover:text-white transition flex items-center gap-1.5">
+                  View Subjects <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                </button>
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      html += `</div>`;
+      container.innerHTML = html;
+    }
+
+    // 3. SUBJECTS VIEW
+    function renderSubjectsView(container) {
+      const curClass = appState.data.classes.find(c => c.id === appState.selectedClassId);
+      const curMedium = curClass?.mediums?.find(m => m.id === appState.selectedMediumId);
+      if (!curClass || !curMedium) return navigateTo('classes');
+
+      let html = `
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <div>
+            <button onclick="navigateTo('mediums', '${curClass.id}')" class="text-xs font-bold text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1 mb-1">
+              <i class="fa-solid fa-arrow-left"></i> Back to ${curClass.name} Mediums
+            </button>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">${curMedium.name} Subjects</h1>
+            <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm">Course subjects for ${curClass.name}.</p>
+          </div>
+          ${appState.isAdmin ? `
+            <button onclick="openModal('addSubject')" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold text-xs shadow-md transition flex items-center gap-2">
+              <i class="fa-solid fa-plus font-bold"></i> Add Subject
+            </button>
+          ` : ''}
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      `;
+
+      if (!curMedium.subjects || curMedium.subjects.length === 0) {
+        html += `<div class="col-span-full text-center py-12 bg-white dark:bg-slate-800 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 text-slate-400 text-sm">No subjects added yet.</div>`;
+      } else {
+        curMedium.subjects.forEach(sbj => {
+          html += `
+            <div class="bg-white dark:bg-slate-800/90 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm hover:shadow-xl transition flex flex-col justify-between group">
+              <div>
+                <div class="flex justify-between items-start mb-4">
+                  <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-2xl group-hover:scale-105 transition">
+                    <i class="fa-solid ${sbj.icon || 'fa-book'}"></i>
+                  </div>
+                  ${appState.isAdmin ? `
+                    <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs">
+                      <button onclick="openModal('editSubject', '${sbj.id}')" class="p-1.5 text-slate-500 hover:text-brand-500"><i class="fa-solid fa-pen"></i></button>
+                      <button onclick="deleteSubject('${sbj.id}')" class="p-1.5 text-slate-500 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                  ` : ''}
+                </div>
+                <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-1">${sbj.name}</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">${sbj.description || 'Subject Course Module'}</p>
+                <span class="inline-block px-2.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-mono font-semibold">${sbj.code || 'SUBJ'}</span>
+              </div>
+              <div class="pt-4 mt-6 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between">
+                <span class="text-xs font-semibold text-slate-400">${sbj.chapters?.length || 0} Chapters</span>
+                <button onclick="navigateTo('chapters', '${curClass.id}', '${curMedium.id}', '${sbj.id}')" class="px-4 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-300 font-semibold text-xs hover:bg-emerald-600 hover:text-white transition flex items-center gap-1.5">
+                  View Chapters <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                </button>
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      html += `</div>`;
+      container.innerHTML = html;
+    }
+
+    // 4. CHAPTERS VIEW
+    function renderChaptersView(container) {
+      const curClass = appState.data.classes.find(c => c.id === appState.selectedClassId);
+      const curMedium = curClass?.mediums?.find(m => m.id === appState.selectedMediumId);
+      const curSubject = curMedium?.subjects?.find(s => s.id === appState.selectedSubjectId);
+      if (!curClass || !curMedium || !curSubject) return navigateTo('classes');
+
+      let html = `
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <div>
+            <button onclick="navigateTo('subjects', '${curClass.id}', '${curMedium.id}')" class="text-xs font-bold text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1 mb-1">
+              <i class="fa-solid fa-arrow-left"></i> Back to ${curMedium.name} Subjects
+            </button>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">${curSubject.name} Chapters</h1>
+            <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm">Select a chapter to launch all 10 dedicated learning modules.</p>
+          </div>
+          ${appState.isAdmin ? `
+            <button onclick="openModal('addChapter')" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold text-xs shadow-md transition flex items-center gap-2">
+              <i class="fa-solid fa-plus font-bold"></i> Add Chapter
+            </button>
+          ` : ''}
+        </div>
+        <div class="space-y-4">
+      `;
+
+      if (!curSubject.chapters || curSubject.chapters.length === 0) {
+        html += `<div class="text-center py-12 bg-white dark:bg-slate-800 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 text-slate-400 text-sm">No chapters found for ${curSubject.name}.</div>`;
+      } else {
+        curSubject.chapters.forEach((ch, idx) => {
+          html += `
+            <div class="bg-white dark:bg-slate-800/90 rounded-2xl p-5 border border-slate-200 dark:border-slate-700/60 shadow-sm hover:shadow-md transition flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div class="flex items-start gap-4">
+                <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-700 font-bold text-slate-700 dark:text-slate-200 flex items-center justify-center shrink-0">
+                  ${idx + 1}
+                </div>
+                <div>
+                  <h2 class="text-lg font-bold text-slate-900 dark:text-white">${ch.name}</h2>
+                  <p class="text-slate-500 dark:text-slate-400 text-xs mt-0.5">${ch.description || 'Interactive learning chapter module.'}</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3 self-end md:self-center">
+                ${appState.isAdmin ? `
+                  <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs">
+                    <button onclick="openModal('editChapter', '${ch.id}')" class="p-1.5 text-slate-500 hover:text-brand-500"><i class="fa-solid fa-pen"></i></button>
+                    <button onclick="deleteChapter('${ch.id}')" class="p-1.5 text-slate-500 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
+                  </div>
+                ` : ''}
+                <button onclick="navigateTo('chapter-detail', '${curClass.id}', '${curMedium.id}', '${curSubject.id}', '${ch.id}')" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs transition shadow-sm flex items-center gap-2">
+                  Open Chapter Hub <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                </button>
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      html += `</div>`;
+      container.innerHTML = html;
+    }
+
+    // 5. CHAPTER RESOURCE HUB (10 DEDICATED SECTIONS)
+    function renderChapterDetailView(container) {
+      const curClass = appState.data.classes.find(c => c.id === appState.selectedClassId);
+      const curMedium = curClass?.mediums?.find(m => m.id === appState.selectedMediumId);
+      const curSubject = curMedium?.subjects?.find(s => s.id === appState.selectedSubjectId);
+      const curChapter = curSubject?.chapters?.find(ch => ch.id === appState.selectedChapterId);
+
+      if (!curClass || !curMedium || !curSubject || !curChapter) return navigateTo('classes');
+      if (!curChapter.resources) curChapter.resources = {};
+
+      const MODULES = [
+        { id: 'audio', label: 'Audio Overview', icon: 'fa-headphones', format: '.MP3, .WAV, .MP4' },
+        { id: 'video', label: 'Video Overview', icon: 'fa-video', format: '.MP4, .MOV' },
+        { id: 'notes', label: 'Reports / Notes', icon: 'fa-file-lines', format: '.PDF' },
+        { id: 'flashcards', label: 'Flashcards', icon: 'fa-clone', format: '.CSV' },
+        { id: 'slides', label: 'Slides', icon: 'fa-file-powerpoint', format: '.PDF, .PPT, .PPTX' },
+        { id: 'mindmap', label: 'Mind Maps', icon: 'fa-diagram-project', format: 'Interactive SVG' },
+        { id: 'quiz', label: 'Quiz', icon: 'fa-circle-question', format: '.CSV' },
+        { id: 'infographic', label: 'Infographic', icon: 'fa-image', format: '.JPG, .PNG, .PDF' },
+        { id: 'datatable', label: 'Data Table', icon: 'fa-table', format: '.CSV / Admin Grid' },
+        { id: 'chatbot', label: 'AI Assistant', icon: 'fa-robot', format: 'File Context AI' }
+      ];
+
+      const currentTabObj = MODULES.find(m => m.id === appState.selectedTab);
+
+      let html = `
+        <div class="mb-6">
+          <button onclick="navigateTo('chapters', '${curClass.id}', '${curMedium.id}', '${curSubject.id}')" class="text-xs font-bold text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1 mb-2">
+            <i class="fa-solid fa-arrow-left"></i> Back to ${curSubject.name} Chapters
+          </button>
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-brand-100 dark:bg-brand-900/60 text-brand-700 dark:text-brand-300 font-mono">${curMedium.name}</span>
+                <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">${curSubject.name}</span>
+              </div>
+              <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight mt-1">${curChapter.name}</h1>
+            </div>
+            ${appState.isAdmin ? `
+              <button onclick="openModal('uploadResource', '${appState.selectedTab}')" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs shadow-md transition flex items-center gap-2">
+                <i class="fa-solid fa-cloud-arrow-up"></i> Add File / Item to ${currentTabObj.label}
+              </button>
+            ` : ''}
+          </div>
+        </div>
+
+        <!-- Horizontal Resource Section Selector -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-3 mb-6 border-b border-slate-200 dark:border-slate-800 scrollbar-thin">
+          ${MODULES.map(tab => `
+            <button onclick="switchTab('${tab.id}')" class="flex items-center gap-2 px-3.5 py-2 rounded-xl font-medium text-xs whitespace-nowrap transition ${appState.selectedTab === tab.id ? 'bg-brand-600 text-white shadow-md' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}">
+              <i class="fa-solid ${tab.icon}"></i> ${tab.label}
+            </button>
+          `).join('')}
+        </div>
+
+        <!-- Dedicated Section Content Area -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm min-h-[420px]">
+          ${renderActiveModule(curChapter.resources, appState.selectedTab)}
+        </div>
+      `;
+
+      container.innerHTML = html;
+    }
+
+    function switchTab(tabId) {
+      appState.selectedTab = tabId;
+      renderChapterDetailView(document.getElementById('app-content'));
+    }
+
+    // Normalize target resources into arrays safely
+    function getResourceList(resources, tab) {
+      if (!resources || !resources[tab]) return [];
+      if (Array.isArray(resources[tab])) return resources[tab];
+      return [resources[tab]];
+    }
+
+    // --- MODULE DISPLAY SWITCHER ---
+    function renderActiveModule(resources, tab) {
+      switch (tab) {
+        case 'audio': {
+          const list = getResourceList(resources, 'audio');
+          if (list.length === 0) return emptyResourceState('Audio Overview (.MP3, .WAV, .MP4)', 'fa-headphones');
+          return `
+            <div class="space-y-4">
+              <div class="flex justify-between items-center">
+                <h3 class="text-lg font-bold text-slate-900 dark:text-white">Audio Tracks (${list.length})</h3>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                ${list.map((res, i) => `
+                  <div class="p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 space-y-3 relative group">
+                    <div class="flex justify-between items-start">
+                      <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-brand-500/10 text-brand-500 flex items-center justify-center font-bold text-lg">
+                          <i class="fa-solid fa-music"></i>
+                        </div>
+                        <div>
+                          <h4 class="font-bold text-sm text-slate-900 dark:text-white">${i + 1}. ${res.title || 'Audio Recording'}</h4>
+                          <span class="text-[10px] text-slate-400 font-mono">${res.type || 'audio/mp3'}</span>
+                        </div>
+                      </div>
+                      ${appState.isAdmin ? `
+                        <button onclick="deleteResourceItem('audio', '${res.id}')" class="p-1.5 text-slate-400 hover:text-red-500 transition text-xs" title="Delete Audio Track">
+                          <i class="fa-solid fa-trash"></i>
+                        </button>
+                      ` : ''}
+                    </div>
+                    <audio controls class="w-full rounded-lg">
+                      <source src="${res.url}" type="${res.type || 'audio/mp3'}">
+                      Your browser does not support audio playback.
+                    </audio>
+                    ${res.content ? `<p class="text-xs text-slate-500 dark:text-slate-400">${res.content}</p>` : ''}
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }
+        case 'video': {
+          const list = getResourceList(resources, 'video');
+          if (list.length === 0) return emptyResourceState('Video Overview (.MP4, .MOV)', 'fa-video');
+          return `
+            <div class="space-y-4">
+              <div class="flex justify-between items-center">
+                <h3 class="text-lg font-bold text-slate-900 dark:text-white">Video Lectures (${list.length})</h3>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                ${list.map((res, i) => `
+                  <div class="p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 space-y-3 relative">
+                    <div class="flex justify-between items-center">
+                      <h4 class="font-bold text-sm text-slate-900 dark:text-white truncate pr-2">${i + 1}. ${res.title || 'Video Lecture'}</h4>
+                      <div class="flex items-center gap-2">
+                        <a href="${res.url}" download class="text-xs text-brand-500 hover:underline" title="Download Video">
+                          <i class="fa-solid fa-download"></i>
+                        </a>
+                        ${appState.isAdmin ? `
+                          <button onclick="deleteResourceItem('video', '${res.id}')" class="p-1 text-slate-400 hover:text-red-500 text-xs" title="Delete Video">
+                            <i class="fa-solid fa-trash"></i>
+                          </button>
+                        ` : ''}
+                      </div>
+                    </div>
+                    <div class="aspect-video w-full rounded-xl overflow-hidden bg-black shadow relative">
+                      <video controls preload="metadata" class="w-full h-full object-contain">
+                        <source src="${res.url}" type="${res.type || 'video/mp4'}">
+                        Your browser does not support video playback.
+                      </video>
+                    </div>
+                    ${res.content ? `<p class="text-xs text-slate-500 dark:text-slate-400">${res.content}</p>` : ''}
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }
+        case 'notes': {
+          const list = getResourceList(resources, 'notes');
+          if (list.length === 0) return emptyResourceState('Reports / Notes (.PDF)', 'fa-file-lines');
+          return `
+            <div class="space-y-6">
+              <h3 class="text-lg font-bold text-slate-900 dark:text-white">Reports & Lecture Notes (${list.length})</h3>
+              ${list.map((res, i) => `
+                <div class="p-5 bg-slate-50 dark:bg-slate-900/60 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+                  <div class="flex justify-between items-center flex-wrap gap-2">
+                    <div class="flex items-center gap-2">
+                      <span class="w-6 h-6 rounded-lg bg-brand-600 text-white flex items-center justify-center font-bold text-xs">${i + 1}</span>
+                      <h4 class="text-base font-bold text-slate-900 dark:text-white">${res.title || 'Lecture Report'}</h4>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      ${res.url ? `
+                        <a href="${res.url}" download class="px-3 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-700 text-xs font-semibold hover:bg-slate-300"><i class="fa-solid fa-download"></i> Download PDF</a>
+                        <button onclick="openLightboxFile('${res.url}', 'pdf')" class="px-3 py-1.5 rounded-xl bg-brand-600 text-white text-xs font-semibold hover:bg-brand-700"><i class="fa-solid fa-expand"></i> Fullscreen</button>
+                      ` : ''}
+                      ${appState.isAdmin ? `
+                        <button onclick="deleteResourceItem('notes', '${res.id}')" class="px-2 py-1.5 text-red-500 hover:text-red-700 text-xs"><i class="fa-solid fa-trash"></i></button>
+                      ` : ''}
+                    </div>
+                  </div>
+                  ${res.url ? `
+                    <div class="w-full h-[400px] rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-950">
+                      <iframe src="${res.url}" class="w-full h-full" frameborder="0"></iframe>
+                    </div>
+                  ` : ''}
+                  ${res.content ? `
+                    <div class="p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 whitespace-pre-line text-xs sm:text-sm leading-relaxed font-mono">
+                      ${res.content}
+                    </div>
+                  ` : ''}
+                </div>
+              `).join('')}
+            </div>
+          `;
+        }
+        case 'flashcards': {
+          const cards = getResourceList(resources, 'flashcards');
+          if (cards.length === 0) return emptyResourceState('Flashcards (.CSV Upload)', 'fa-clone');
+          return renderFlashcardModule(cards);
+        }
+        case 'slides': {
+          const list = getResourceList(resources, 'slides');
+          if (list.length === 0) return emptyResourceState('Slides (.PDF, .PPT, .PPTX)', 'fa-file-powerpoint');
+          return `
+            <div class="space-y-6">
+              <h3 class="text-lg font-bold text-slate-900 dark:text-white">Slide Decks (${list.length})</h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                ${list.map((slides, i) => `
+                  <div class="p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3">
+                    <div class="flex justify-between items-center">
+                      <h4 class="font-bold text-sm text-slate-900 dark:text-white">${i + 1}. ${slides.title || 'Presentation Deck'}</h4>
+                      <div class="flex items-center gap-2">
+                        <a href="${slides.url}" target="_blank" download class="text-xs text-brand-500 hover:underline"><i class="fa-solid fa-download"></i> Download</a>
+                        ${appState.isAdmin ? `<button onclick="deleteResourceItem('slides', '${slides.id}')" class="text-xs text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button>` : ''}
+                      </div>
+                    </div>
+                    <div class="w-full h-[320px] rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-900">
+                      <iframe src="${slides.url}" class="w-full h-full" frameborder="0"></iframe>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }
+        case 'mindmap': {
+          const map = resources.mindmap;
+          if (!map || !map.name) return emptyResourceState('Interactive Mind Maps', 'fa-diagram-project');
+          return renderMindMapModule(map);
+        }
+        case 'quiz': {
+          const quiz = getResourceList(resources, 'quiz');
+          if (quiz.length === 0) return emptyResourceState('Quiz (.CSV Upload)', 'fa-circle-question');
+          return renderQuizEngine(quiz);
+        }
+        case 'infographic': {
+          const list = getResourceList(resources, 'infographic');
+          if (list.length === 0) return emptyResourceState('Infographic (.JPG, .PNG, .PDF)', 'fa-image');
+          return `
+            <div class="space-y-4">
+              <h3 class="text-lg font-bold text-slate-900 dark:text-white">Infographic Charts (${list.length})</h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                ${list.map((info, i) => {
+                  const isPdf = info.type === 'application/pdf' || (info.url && info.url.endsWith('.pdf'));
+                  return `
+                    <div class="p-3 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2 relative group">
+                      <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-900 dark:text-white truncate">${i + 1}. ${info.title || 'Infographic'}</span>
+                        ${appState.isAdmin ? `<button onclick="deleteResourceItem('infographic', '${info.id}')" class="text-xs text-red-500"><i class="fa-solid fa-trash"></i></button>` : ''}
+                      </div>
+                      ${isPdf ? `
+                        <div class="w-full h-48 rounded-xl overflow-hidden bg-slate-900">
+                          <iframe src="${info.url}" class="w-full h-full"></iframe>
+                        </div>
+                      ` : `
+                        <div class="rounded-xl overflow-hidden cursor-pointer h-48 bg-slate-950 flex items-center justify-center" onclick="openLightboxFile('${info.url}', 'img')">
+                          <img src="${info.url}" class="max-h-full max-w-full object-contain" alt="Infographic" />
+                        </div>
+                      `}
+                      <button onclick="openLightboxFile('${info.url}', '${isPdf ? 'pdf' : 'img'}')" class="w-full py-1 rounded-lg bg-slate-200 dark:bg-slate-800 text-[11px] font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-300">
+                        Preview
+                      </button>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          `;
+        }
+        case 'datatable': {
+          const list = getResourceList(resources, 'datatable');
+          if (list.length === 0) return emptyResourceState('Data Table (.CSV / Admin Grid)', 'fa-table');
+          return renderDataTableModule(list[0]);
+        }
+        case 'chatbot': {
+          return renderContextAwareAIChatbot(resources);
+        }
+      }
+    }
+
+    function emptyResourceState(title, icon) {
+      return `
+        <div class="text-center py-16">
+          <div class="w-16 h-16 bg-slate-100 dark:bg-slate-700 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+            <i class="fa-solid ${icon}"></i>
+          </div>
+          <h4 class="text-base font-bold text-slate-800 dark:text-slate-200">No ${title} Uploaded</h4>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
+            ${appState.isAdmin ? 'Click "Add File / Item" above to upload or assign local files.' : 'This module has not been uploaded yet for this chapter.'}
+          </p>
+        </div>
+      `;
+    }
+
+    // FLASHCARD COMPONENT
+    let cardIdx = 0;
+    let cardFlipped = false;
+    function renderFlashcardModule(cards) {
+      const card = cards[cardIdx] || cards[0];
+      return `
+        <div class="max-w-md mx-auto space-y-6 py-4">
+          <div class="flex justify-between items-center text-xs text-slate-400 font-semibold">
+            <span>Card ${cardIdx + 1} of ${cards.length}</span>
+            <span>Click card to flip</span>
+          </div>
+          <div class="perspective-1000 h-64 cursor-pointer" onclick="cardFlipped = !cardFlipped; renderChapterDetailView(document.getElementById('app-content'));">
+            <div class="relative w-full h-full duration-500 transform-style-3d ${cardFlipped ? 'rotate-y-180' : ''}">
+              <div class="absolute inset-0 bg-brand-600 text-white rounded-2xl p-6 flex flex-col justify-between items-center text-center backface-hidden shadow-xl border border-brand-500">
+                <span class="text-[10px] font-bold uppercase tracking-widest text-brand-200">Front / Question</span>
+                <p class="text-lg font-semibold">${card.q}</p>
+                <span class="text-xs text-brand-200"><i class="fa-solid fa-rotate"></i> Tap to Flip</span>
+              </div>
+              <div class="absolute inset-0 bg-emerald-600 text-white rounded-2xl p-6 flex flex-col justify-between items-center text-center backface-hidden rotate-y-180 shadow-xl border border-emerald-500">
+                <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-200">Back / Answer</span>
+                <p class="text-lg font-semibold">${card.a}</p>
+                <span class="text-xs text-emerald-200"><i class="fa-solid fa-rotate"></i> Tap to Flip</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex justify-between items-center">
+            <button onclick="cardFlipped=false; cardIdx = (cardIdx - 1 + ${cards.length}) % ${cards.length}; renderChapterDetailView(document.getElementById('app-content'));" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 text-xs font-semibold hover:bg-slate-200">Previous</button>
+            <button onclick="cardFlipped=false; cardIdx = (cardIdx + 1) % ${cards.length}; renderChapterDetailView(document.getElementById('app-content'));" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 text-xs font-semibold hover:bg-slate-200">Next</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // MIND MAP COMPONENT
+    function renderMindMapModule(node) {
+      return `
+        <div class="p-4 space-y-4">
+          <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-3">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">Interactive Mind Map Graph</h3>
+            ${appState.isAdmin ? `
+              <button onclick="openModal('editMindmap')" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold">
+                <i class="fa-solid fa-diagram-next"></i> Mind Map Builder
+              </button>
+            ` : ''}
+          </div>
+          <div class="overflow-x-auto py-6 min-w-[600px] flex justify-center">
+            ${renderMindMapTree(node)}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderMindMapTree(node) {
+      const bgColor = node.color || '#0369a1';
+      return `
+        <div class="flex flex-col items-center">
+          <div class="px-5 py-2.5 rounded-2xl text-white font-bold text-xs shadow-lg border border-white/20 text-center transition transform hover:scale-105" style="background-color: ${bgColor}">
+            ${node.name}
+          </div>
+          ${node.children && node.children.length > 0 ? `
+            <div class="w-0.5 h-6 bg-slate-300 dark:bg-slate-600"></div>
+            <div class="flex gap-8 relative before:content-[''] before:absolute before:top-0 before:left-4 before:right-4 before:h-0.5 before:bg-slate-300 dark:before:bg-slate-600">
+              ${node.children.map(child => `
+                <div class="pt-6 relative before:content-[''] before:absolute before:top-0 before:left-1/2 before:w-0.5 before:h-6 before:bg-slate-300 dark:before:bg-slate-600">
+                  ${renderMindMapTree(child)}
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    // QUIZ COMPONENT
+    let userAnswers = {};
+    let quizSubmitted = false;
+    function renderQuizEngine(quiz) {
+      if (quizSubmitted) {
+        let score = 0;
+        quiz.forEach((q, i) => { if (userAnswers[i] === q.answer) score++; });
+        return `
+          <div class="max-w-md mx-auto text-center py-8 space-y-6">
+            <div class="w-20 h-20 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto text-3xl font-extrabold">
+              ${score}/${quiz.length}
+            </div>
+            <div>
+              <h3 class="text-2xl font-bold text-slate-900 dark:text-white">Quiz Completed</h3>
+              <p class="text-xs text-slate-400 mt-1">Score: ${Math.round((score/quiz.length)*100)}%</p>
+            </div>
+            <button onclick="quizSubmitted=false; userAnswers={}; renderChapterDetailView(document.getElementById('app-content'));" class="px-6 py-2.5 rounded-xl bg-brand-600 text-white font-semibold text-xs shadow-md">Retry Quiz</button>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="max-w-xl mx-auto space-y-6">
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white">Interactive Assessment</h3>
+          <div class="space-y-6">
+            ${quiz.map((q, idx) => `
+              <div class="p-4 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
+                <p class="font-semibold text-xs sm:text-sm text-slate-900 dark:text-white">${idx + 1}. ${q.question}</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  ${q.options.map((opt, oIdx) => `
+                    <button onclick="userAnswers[${idx}] = ${oIdx}; renderChapterDetailView(document.getElementById('app-content'));" class="p-2.5 rounded-lg border text-left text-xs font-medium transition ${userAnswers[idx] === oIdx ? 'bg-brand-600 text-white border-brand-600' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-brand-500'}">
+                      ${opt}
+                    </button>
+                  `).join('')}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          <button onclick="quizSubmitted=true; renderChapterDetailView(document.getElementById('app-content'));" class="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs shadow-md" ${Object.keys(userAnswers).length < quiz.length ? 'disabled opacity-50' : ''}>
+            Submit Assessment
+          </button>
+        </div>
+      `;
+    }
+
+    // DATA TABLE COMPONENT
+    let tableSearchQuery = "";
+    function renderDataTableModule(dt) {
+      if (!dt || !dt.columns) return emptyResourceState('Data Table (.CSV / Admin Grid)', 'fa-table');
+      const filtered = dt.rows.filter(row => row.some(cell => String(cell).toLowerCase().includes(tableSearchQuery.toLowerCase())));
+      return `
+        <div class="space-y-4">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">Reference Data Table</h3>
+            <input type="text" placeholder="Search rows..." value="${tableSearchQuery}" oninput="tableSearchQuery = this.value; renderChapterDetailView(document.getElementById('app-content'));" class="px-3.5 py-1.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs outline-none focus:ring-2 focus:ring-brand-500 w-full sm:w-64" />
+          </div>
+          <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 uppercase font-semibold">
+                <tr>
+                  ${dt.columns.map(c => `<th class="p-3 border-b border-slate-200 dark:border-slate-700">${c}</th>`).join('')}
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+                ${filtered.map(row => `
+                  <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/40">
+                    ${row.map(cell => `<td class="p-3 text-slate-800 dark:text-slate-200">${cell}</td>`).join('')}
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    // CONTEXT-AWARE AI CHATBOT
+    let chatMessages = [
+      { sender: 'ai', text: 'Hello! I am your AI Assistant. I have indexed all uploaded reports, notes, flashcards, quiz questions, and data tables for this chapter. How can I help you today?' }
+    ];
+
+    function renderContextAwareAIChatbot(resources) {
+      return `
+        <div class="max-w-2xl mx-auto flex flex-col h-[420px]">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700 mb-3">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-robot text-brand-500 text-xl"></i>
+              <div>
+                <h3 class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">Chapter Context AI Tutor</h3>
+                <p class="text-[10px] text-slate-400">Context Index: Reports, Flashcards, Quiz & Data Tables</p>
+              </div>
+            </div>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-300 font-mono">Active Index</span>
+          </div>
+
+          <div id="chat-box" class="flex-grow overflow-y-auto space-y-3 pr-2">
+            ${chatMessages.map(m => `
+              <div class="flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'}">
+                <div class="max-w-[85%] rounded-2xl p-3 text-xs ${m.sender === 'user' ? 'bg-brand-600 text-white rounded-br-none' : 'bg-slate-100 dark:bg-slate-700/80 text-slate-800 dark:text-slate-200 rounded-bl-none'}">
+                  ${m.text}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+
+          <form onsubmit="handleAIChat(event, ${JSON.stringify(resources).replace(/"/g, '&quot;')})" class="flex gap-2 pt-3 border-t border-slate-200 dark:border-slate-700 mt-2">
+            <input type="text" id="ai-chat-input" placeholder="Ask a question about this chapter's materials..." required class="flex-grow px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500" />
+            <button type="submit" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold"><i class="fa-solid fa-paper-plane"></i></button>
+          </form>
+        </div>
+      `;
+    }
+
+    function handleAIChat(e, resources) {
+      e.preventDefault();
+      const input = document.getElementById('ai-chat-input');
+      const query = input.value.trim();
+      if (!query) return;
+
+      chatMessages.push({ sender: 'user', text: query });
+      input.value = '';
+      renderChapterDetailView(document.getElementById('app-content'));
+
+      let responseText = extractContextResponse(query, resources);
+
+      setTimeout(() => {
+        chatMessages.push({ sender: 'ai', text: responseText });
+        renderChapterDetailView(document.getElementById('app-content'));
+      }, 400);
+    }
+
+    function extractContextResponse(query, resources) {
+      const qLower = query.toLowerCase();
+
+      const notesList = getResourceList(resources, 'notes');
+      for (let note of notesList) {
+        if (note.content && (qLower.includes('formula') || qLower.includes('law') || qLower.includes('mirror') || qLower.includes('snell'))) {
+          return `Extracted from Chapter Reports & Notes:\n\n` + note.content;
+        }
+      }
+
+      const flashcardsList = getResourceList(resources, 'flashcards');
+      if (flashcardsList.length > 0) {
+        const matchCard = flashcardsList.find(c => c.q && (c.q.toLowerCase().includes(qLower) || c.a.toLowerCase().includes(qLower)));
+        if (matchCard) {
+          return `Extracted from Flashcards Index:\nQ: ${matchCard.q}\nA: ${matchCard.a}`;
+        }
+      }
+
+      const quizList = getResourceList(resources, 'quiz');
+      if (quizList.length > 0) {
+        const matchQuiz = quizList.find(q => q.question && q.question.toLowerCase().includes(qLower));
+        if (matchQuiz) {
+          return `Extracted from Quiz Questions:\nQ: ${matchQuiz.question}\nCorrect Answer: ${matchQuiz.options[matchQuiz.answer]}`;
+        }
+      }
+
+      const dtList = getResourceList(resources, 'datatable');
+      if (dtList.length > 0 && dtList[0].rows) {
+        const matchRow = dtList[0].rows.find(row => row.some(cell => String(cell).toLowerCase().includes(qLower)));
+        if (matchRow) {
+          return `Extracted from Chapter Data Table:\n${dtList[0].columns.join(' | ')}\n${matchRow.join(' | ')}`;
+        }
+      }
+
+      return `AI Response regarding "${query}":\nBased on uploaded chapter resources, concepts adhere to standard educational guidelines. Consult the Reports, Flashcards, or Data Table section for detailed data tables and formulas.`;
+    }
+
+    // --- MODAL AND UPLOADER HANDLERS ---
+    let modalAction = null;
+    let modalTargetId = null;
+
+    function openModal(action, targetId = null) {
+      modalAction = action;
+      modalTargetId = targetId;
+      const modal = document.getElementById('action-modal');
+      const title = document.getElementById('modal-title');
+      const fields = document.getElementById('modal-fields');
+
+      fields.innerHTML = '';
+      loadedFileBlob = null;
+      loadedFileType = null;
+      modal.classList.remove('hidden');
+
+      const curClass = appState.data.classes.find(c => c.id === appState.selectedClassId);
+      const curMedium = curClass?.mediums?.find(m => m.id === appState.selectedMediumId);
+      const curSubject = curMedium?.subjects?.find(s => s.id === appState.selectedSubjectId);
+      const curChapter = curSubject?.chapters?.find(ch => ch.id === appState.selectedChapterId);
+
+      switch (action) {
+        case 'addClass':
+          title.textContent = "Add Class";
+          fields.innerHTML = `
+            <div><label class="block text-xs font-semibold mb-1">Class Name</label><input type="text" id="f-name" placeholder="Class 11" required class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Description</label><input type="text" id="f-desc" placeholder="Higher Secondary Standard" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+          `;
+          break;
+        case 'editClass':
+          title.textContent = "Edit Class";
+          fields.innerHTML = `
+            <div><label class="block text-xs font-semibold mb-1">Class Name</label><input type="text" id="f-name" value="${curClass.name}" required class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Description</label><input type="text" id="f-desc" value="${curClass.description || ''}" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+          `;
+          break;
+        case 'addMedium':
+          title.textContent = "Add Instruction Medium";
+          fields.innerHTML = `
+            <div><label class="block text-xs font-semibold mb-1">Medium Name</label><input type="text" id="f-name" placeholder="Malayalam Medium" required class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Language Code</label><input type="text" id="f-code" placeholder="MAL" required class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+          `;
+          break;
+        case 'editMedium': {
+          const med = curClass.mediums.find(m => m.id === targetId);
+          title.textContent = "Edit Medium";
+          fields.innerHTML = `
+            <div><label class="block text-xs font-semibold mb-1">Medium Name</label><input type="text" id="f-name" value="${med.name}" required class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Language Code</label><input type="text" id="f-code" value="${med.code}" required class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+          `;
+          break;
+        }
+        case 'addSubject':
+          title.textContent = "Add Subject";
+          fields.innerHTML = `
+            <div><label class="block text-xs font-semibold mb-1">Subject Name</label><input type="text" id="f-name" placeholder="Chemistry" required class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Subject Code</label><input type="text" id="f-code" placeholder="CHEM10" required class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Description</label><input type="text" id="f-desc" placeholder="Organic & Inorganic Chemistry" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+          `;
+          break;
+        case 'editSubject': {
+          const sbj = curMedium.subjects.find(s => s.id === targetId);
+          title.textContent = "Edit Subject";
+          fields.innerHTML = `
+            <div><label class="block text-xs font-semibold mb-1">Subject Name</label><input type="text" id="f-name" value="${sbj.name}" required class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Subject Code</label><input type="text" id="f-code" value="${sbj.code || ''}" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Description</label><input type="text" id="f-desc" value="${sbj.description || ''}" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+          `;
+          break;
+        }
+        case 'addChapter':
+          title.textContent = "Add Chapter";
+          fields.innerHTML = `
+            <div><label class="block text-xs font-semibold mb-1">Chapter Title</label><input type="text" id="f-name" placeholder="Chemical Bonding" required class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Description</label><textarea id="f-desc" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" placeholder="Chapter concepts summary..."></textarea></div>
+          `;
+          break;
+        case 'editChapter': {
+          const ch = curSubject.chapters.find(c => c.id === targetId);
+          title.textContent = "Edit Chapter";
+          fields.innerHTML = `
+            <div><label class="block text-xs font-semibold mb-1">Chapter Title</label><input type="text" id="f-name" value="${ch.name}" required class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Description</label><textarea id="f-desc" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs">${ch.description || ''}</textarea></div>
+          `;
+          break;
+        }
+        case 'uploadResource': {
+          const tab = targetId;
+          const restr = FILE_RESTRICTIONS[tab] || { accept: "*", label: "File Resource" };
+          title.textContent = `Add File / Item to ${restr.label}`;
+          renderResourceFormFields(fields, tab, restr);
+          break;
+        }
+        case 'editMindmap':
+          title.textContent = "Mind Map Builder";
+          renderMindMapBuilder(fields);
+          break;
+      }
+    }
+
+    function renderResourceFormFields(container, tab, restr) {
+      if (['flashcards', 'quiz', 'datatable'].includes(tab)) {
+        container.innerHTML = `
+          <div class="p-3 bg-amber-500/10 rounded-xl border border-amber-500/30 text-xs space-y-1">
+            <p class="font-bold text-amber-500">Allowed Extension: ${restr.accept}</p>
+            <p class="text-slate-400">Flashcards CSV: <code>Question/Front, Answer/Back</code></p>
+            <p class="text-slate-400">Quiz CSV: <code>Question, Option1, Option2, Option3, Option4, CorrectIndex</code></p>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1">Select CSV File (${restr.accept})</label>
+            <input type="file" accept="${restr.accept}" id="f-csv-file" onchange="parseLocalCsvFile(event)" class="w-full text-xs text-slate-400" />
+          </div>
+          <div class="text-center text-xs text-slate-400 font-bold">OR Direct CSV Input</div>
+          <textarea id="f-raw-csv" rows="5" placeholder="Paste CSV text here..." class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs font-mono"></textarea>
+        `;
+      } else {
+        container.innerHTML = `
+          <div><label class="block text-xs font-semibold mb-1">Resource Title</label><input type="text" id="f-res-title" placeholder="e.g. Part 2 - Advanced Lecture" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+          <div>
+            <label class="block text-xs font-semibold mb-1">Relative File Path / Direct URL</label>
+            <input type="text" id="f-res-url" placeholder="e.g. optics_video_2.mp4 or ./videos/lecture.mp4" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1">OR Choose Local File (${restr.accept})</label>
+            <input type="file" accept="${restr.accept}" id="f-local-file" onchange="parseLocalFile(event, '${restr.accept}')" class="w-full text-xs text-slate-400" />
+          </div>
+          <div><label class="block text-xs font-semibold mb-1">Notes / Description</label><textarea id="f-res-content" rows="3" placeholder="Enter optional text description..." class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs"></textarea></div>
+        `;
+      }
+    }
+
+    function validateFileExtension(input, allowed) {
+      const fileName = input.value;
+      if (!fileName) return false;
+      const ext = "." + fileName.split('.').pop().toLowerCase();
+      const allowedArr = allowed.split(',').map(s => s.trim().toLowerCase());
+      if (!allowedArr.includes(ext)) {
+        alert(`Invalid file extension! Strictly allowed formats: ${allowed}`);
+        input.value = "";
+        return false;
+      }
+      return true;
+    }
+
+    let loadedFileBlob = null;
+    let loadedFileType = null;
+
+    // Fast Blob URL generator for local files to avoid storage locks
+    function parseLocalFile(e, allowed) {
+      if (!validateFileExtension(e.target, allowed)) return;
+      const file = e.target.files[0];
+      if (file) {
+        if (loadedFileBlob && loadedFileBlob.startsWith('blob:')) {
+          URL.revokeObjectURL(loadedFileBlob);
+        }
+
+        let type = file.type;
+        if (!type) {
+          const lowerName = file.name.toLowerCase();
+          if (lowerName.endsWith('.mp4')) type = 'video/mp4';
+          else if (lowerName.endsWith('.mov')) type = 'video/quicktime';
+          else if (lowerName.endsWith('.mp3')) type = 'audio/mpeg';
+          else if (lowerName.endsWith('.wav')) type = 'audio/wav';
+          else if (lowerName.endsWith('.pdf')) type = 'application/pdf';
+          else type = 'application/octet-stream';
+        }
+
+        loadedFileType = type;
+        loadedFileBlob = URL.createObjectURL(file);
+
+        const urlInput = document.getElementById('f-res-url');
+        if (urlInput) urlInput.value = loadedFileBlob;
+      }
+    }
+
+    function parseLocalCsvFile(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          const rawInput = document.getElementById('f-raw-csv');
+          if (rawInput) rawInput.value = evt.target.result;
+        };
+        reader.readAsText(file);
+      }
+    }
+
+    function renderMindMapBuilder(container) {
+      container.innerHTML = `
+        <div class="space-y-3 text-xs">
+          <p class="text-slate-400">Define Central Concept and Connected Nodes:</p>
+          <div><label class="font-bold block mb-1">Central Root Node Title</label><input type="text" id="mm-root" value="Optics" class="w-full px-3 py-1.5 rounded-lg border dark:border-slate-700 bg-slate-900 text-xs" /></div>
+          <div><label class="font-bold block mb-1">Branch 1 Title</label><input type="text" id="mm-b1-title" value="Reflection" class="w-full px-3 py-1.5 rounded-lg border dark:border-slate-700 bg-slate-900 text-xs" /></div>
+          <div><label class="font-bold block mb-1">Branch 1 Subnodes (Comma separated)</label><input type="text" id="mm-b1-sub" value="Concave Mirrors, Convex Mirrors" class="w-full px-3 py-1.5 rounded-lg border dark:border-slate-700 bg-slate-900 text-xs" /></div>
+          <div><label class="font-bold block mb-1">Branch 2 Title</label><input type="text" id="mm-b2-title" value="Refraction" class="w-full px-3 py-1.5 rounded-lg border dark:border-slate-700 bg-slate-900 text-xs" /></div>
+          <div><label class="font-bold block mb-1">Branch 2 Subnodes (Comma separated)</label><input type="text" id="mm-b2-sub" value="Snell Law, Lenses, Power" class="w-full px-3 py-1.5 rounded-lg border dark:border-slate-700 bg-slate-900 text-xs" /></div>
+        </div>
+      `;
+    }
+
+    function closeModal() { document.getElementById('action-modal').classList.add('hidden'); }
+
+    function handleModalSubmit(e) {
+      e.preventDefault();
+      const curClass = appState.data.classes.find(c => c.id === appState.selectedClassId);
+      const curMedium = curClass?.mediums?.find(m => m.id === appState.selectedMediumId);
+      const curSubject = curMedium?.subjects?.find(s => s.id === appState.selectedSubjectId);
+      const curChapter = curSubject?.chapters?.find(ch => ch.id === appState.selectedChapterId);
+
+      try {
+        switch (modalAction) {
+          case 'addClass':
+            appState.data.classes.push({ id: 'cls-' + Date.now(), name: document.getElementById('f-name').value, description: document.getElementById('f-desc').value, mediums: [] });
+            break;
+          case 'editClass':
+            curClass.name = document.getElementById('f-name').value;
+            curClass.description = document.getElementById('f-desc').value;
+            break;
+          case 'addMedium':
+            curClass.mediums.push({ id: 'med-' + Date.now(), name: document.getElementById('f-name').value, code: document.getElementById('f-code').value, icon: 'fa-language', subjects: [] });
+            break;
+          case 'editMedium': {
+            const med = curClass.mediums.find(m => m.id === modalTargetId);
+            if (med) { med.name = document.getElementById('f-name').value; med.code = document.getElementById('f-code').value; }
+            break;
+          }
+          case 'addSubject':
+            curMedium.subjects.push({ id: 'sbj-' + Date.now(), name: document.getElementById('f-name').value, code: document.getElementById('f-code').value, description: document.getElementById('f-desc').value, icon: 'fa-book', chapters: [] });
+            break;
+          case 'editSubject': {
+            const sbj = curMedium.subjects.find(s => s.id === modalTargetId);
+            if (sbj) { sbj.name = document.getElementById('f-name').value; sbj.code = document.getElementById('f-code').value; sbj.description = document.getElementById('f-desc').value; }
+            break;
+          }
+          case 'addChapter':
+            curSubject.chapters.push({ id: 'ch-' + Date.now(), name: document.getElementById('f-name').value, description: document.getElementById('f-desc').value, resources: {} });
+            break;
+          case 'editChapter': {
+            const ch = curSubject.chapters.find(c => c.id === modalTargetId);
+            if (ch) { ch.name = document.getElementById('f-name').value; ch.description = document.getElementById('f-desc').value; }
+            break;
+          }
+          case 'uploadResource': {
+            const tab = modalTargetId;
+            if (!curChapter.resources) curChapter.resources = {};
+
+            if (['flashcards', 'quiz', 'datatable'].includes(tab)) {
+              const rawCsv = document.getElementById('f-raw-csv').value;
+              if (tab === 'flashcards') {
+                if (!Array.isArray(curChapter.resources.flashcards)) curChapter.resources.flashcards = [];
+                const lines = rawCsv.split('\n').filter(l => l.trim());
+                lines.forEach(l => {
+                  const parts = l.split(',');
+                  curChapter.resources.flashcards.push({ id: 'fc-' + Date.now() + Math.random(), q: parts[0]?.trim() || '', a: parts[1]?.trim() || '' });
+                });
+              } else if (tab === 'quiz') {
+                if (!Array.isArray(curChapter.resources.quiz)) curChapter.resources.quiz = [];
+                const lines = rawCsv.split('\n').filter(l => l.trim());
+                lines.forEach(l => {
+                  const p = l.split(',');
+                  curChapter.resources.quiz.push({ id: 'qz-' + Date.now() + Math.random(), question: p[0]?.trim() || '', options: [p[1]?.trim(), p[2]?.trim(), p[3]?.trim(), p[4]?.trim()], answer: parseInt(p[5] || 0) });
+                });
+              } else if (tab === 'datatable') {
+                const lines = rawCsv.split('\n').filter(l => l.trim());
+                if (lines.length > 0) {
+                  const cols = lines[0].split(',').map(c => c.trim());
+                  const rows = lines.slice(1).map(r => r.split(',').map(c => c.trim()));
+                  curChapter.resources.datatable = [{ id: 'dt-' + Date.now(), columns: cols, rows: rows }];
+                }
+              }
+            } else {
+              if (!Array.isArray(curChapter.resources[tab])) {
+                // Preserve legacy single-item as first array item if upgrading state
+                const existing = curChapter.resources[tab];
+                curChapter.resources[tab] = existing && existing.url ? [existing] : [];
+              }
+
+              const title = document.getElementById('f-res-title').value;
+              const url = document.getElementById('f-res-url').value;
+              const content = document.getElementById('f-res-content').value;
+
+              let mimeType = loadedFileType;
+              if (!mimeType) {
+                const lowerUrl = url.toLowerCase();
+                if (lowerUrl.endsWith('.mp4')) mimeType = 'video/mp4';
+                else if (lowerUrl.endsWith('.mov')) mimeType = 'video/quicktime';
+                else if (lowerUrl.endsWith('.mp3')) mimeType = 'audio/mpeg';
+                else if (lowerUrl.endsWith('.wav')) mimeType = 'audio/wav';
+                else if (lowerUrl.endsWith('.pdf')) mimeType = 'application/pdf';
+                else mimeType = 'application/octet-stream';
+              }
+
+              curChapter.resources[tab].push({
+                id: 'res-' + Date.now(),
+                title: title || `Item ${curChapter.resources[tab].length + 1}`,
+                url: url,
+                content: content || '',
+                type: mimeType
+              });
+            }
+            break;
+          }
+          case 'editMindmap': {
+            const root = document.getElementById('mm-root').value;
+            const b1Title = document.getElementById('mm-b1-title').value;
+            const b1Sub = document.getElementById('mm-b1-sub').value.split(',').map(s=>({name: s.trim()}));
+            const b2Title = document.getElementById('mm-b2-title').value;
+            const b2Sub = document.getElementById('mm-b2-sub').value.split(',').map(s=>({name: s.trim()}));
+            curChapter.resources.mindmap = {
+              name: root,
+              children: [
+                { name: b1Title, color: "#0284c7", children: b1Sub },
+                { name: b2Title, color: "#10b981", children: b2Sub }
+              ]
+            };
+            break;
+          }
+        }
+
+        saveData();
+      } catch (err) {
+        console.error("Error saving state:", err);
+      } finally {
+        closeModal();
+        renderView();
+      }
+    }
+
+    // Delete single item from multi-resource arrays
+    function deleteResourceItem(tab, itemId) {
+      const curClass = appState.data.classes.find(c => c.id === appState.selectedClassId);
+      const curMedium = curClass?.mediums?.find(m => m.id === appState.selectedMediumId);
+      const curSubject = curMedium?.subjects?.find(s => s.id === appState.selectedSubjectId);
+      const curChapter = curSubject?.chapters?.find(ch => ch.id === appState.selectedChapterId);
+
+      if (curChapter?.resources?.[tab] && Array.isArray(curChapter.resources[tab])) {
+        curChapter.resources[tab] = curChapter.resources[tab].filter(item => item.id !== itemId);
+        saveData();
+        renderView();
+      }
+    }
+
+    // --- DELETION HANDLERS ---
+    function deleteClass(id) { if (confirm("Delete this Class and all its subjects?")) { appState.data.classes = appState.data.classes.filter(c => c.id !== id); saveData(); renderView(); } }
+    function deleteMedium(id) { const c = appState.data.classes.find(cls => cls.id === appState.selectedClassId); if (c) { c.mediums = c.mediums.filter(m => m.id !== id); saveData(); renderView(); } }
+    function deleteSubject(id) { const c = appState.data.classes.find(cls => cls.id === appState.selectedClassId); const m = c?.mediums?.find(med => med.id === appState.selectedMediumId); if (m) { m.subjects = m.subjects.filter(s => s.id !== id); saveData(); renderView(); } }
+    function deleteChapter(id) { const c = appState.data.classes.find(cls => cls.id === appState.selectedClassId); const m = c?.mediums?.find(med => med.id === appState.selectedMediumId); const s = m?.subjects?.find(sbj => sbj.id === appState.selectedSubjectId); if (s) { s.chapters = s.chapters.filter(ch => ch.id !== id); saveData(); renderView(); } }
+
+    // --- LIGHTBOX CONTROL ---
+    function openLightboxFile(url, type) {
+      const box = document.getElementById('file-lightbox');
+      const container = document.getElementById('lightbox-container');
+      if (type === 'pdf') {
+        container.innerHTML = `<iframe src="${url}" class="w-full h-full"></iframe>`;
+      } else {
+        container.innerHTML = `<img src="${url}" class="max-w-full max-h-full object-contain" />`;
+      }
+      box.classList.remove('hidden');
+    }
+    function closeLightbox() { document.getElementById('file-lightbox').classList.add('hidden'); }
+
+    // --- INITIALIZATION ---
+    window.onload = function() {
+      loadState();
+      updateAdminUI();
+      renderBreadcrumb();
+      renderView();
+    };
+  </script>
+</body>
+</html>
