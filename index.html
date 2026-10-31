@@ -14,7 +14,7 @@
             crimson: { 50: '#fdf2f2', 100: '#fde8e8', 500: '#C1121F', 600: '#a50f1a', 700: '#890c16', 900: '#4e070d' },
             forest: { 50: '#f2f7f3', 500: '#386641', 600: '#2d5234', 700: '#233f28' },
             cream: { 500: '#FDF0D5', 600: '#f7e2b8' },
-            navy: { 500: '#003049', 600: '#002538', 700: '#001a27', 900: '#000d14' },
+            navy: { 500: '#DDA15E', 600: '#002538', 700: '#001a27', 900: '#000d14' },
             gold: { 500: '#DDA15E', 600: '#cf8e45' }
           }
         }
@@ -291,7 +291,7 @@
         icon.className = "fa-solid fa-sun text-[#DDA15E]";
       } else {
         html.classList.remove('dark');
-        icon.className = "fa-solid fa-moon text-[#003049]";
+        icon.className = "fa-solid fa-moon text-[#DDA15E]";
       }
     }
 
@@ -1205,64 +1205,64 @@
         case 'addClass':
           title.textContent = "Add Class";
           fields.innerHTML = `
-            <div><label class="block text-xs font-bold mb-1">Class Name</label><input type="text" id="f-name" placeholder="Class 11" required class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#003049] text-xs text-[#003049] dark:text-white" /></div>
-            <div><label class="block text-xs font-bold mb-1">Description</label><input type="text" id="f-desc" placeholder="Higher Secondary Standard" class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#003049] text-xs text-[#003049] dark:text-white" /></div>
+            <div><label class="block text-xs font-bold mb-1">Class Name</label><input type="text" id="f-name" placeholder="Class 11" required class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs text-[#DDA15E] dark:text-white" /></div>
+            <div><label class="block text-xs font-bold mb-1">Description</label><input type="text" id="f-desc" placeholder="Higher Secondary Standard" class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs text-[#DDA15E] dark:text-white" /></div>
           `;
           break;
         case 'editClass':
           title.textContent = "Edit Class";
           fields.innerHTML = `
-            <div><label class="block text-xs font-bold mb-1">Class Name</label><input type="text" id="f-name" value="${curClass?.name || ''}" required class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#003049] text-xs text-[#003049] dark:text-white" /></div>
-            <div><label class="block text-xs font-bold mb-1">Description</label><input type="text" id="f-desc" value="${curClass?.description || ''}" class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#003049] text-xs text-[#003049] dark:text-white" /></div>
+            <div><label class="block text-xs font-bold mb-1">Class Name</label><input type="text" id="f-name" value="${curClass?.name || ''}" required class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs text-[#DDA15E] dark:text-white" /></div>
+            <div><label class="block text-xs font-bold mb-1">Description</label><input type="text" id="f-desc" value="${curClass?.description || ''}" class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs text-[#DDA15E] dark:text-white" /></div>
           `;
           break;
         case 'addMedium':
           title.textContent = "Add Instruction Medium";
           fields.innerHTML = `
-            <div><label class="block text-xs font-bold mb-1">Medium Name</label><input type="text" id="f-name" placeholder="Malayalam Medium" required class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#003049] text-xs text-[#003049] dark:text-white" /></div>
-            <div><label class="block text-xs font-bold mb-1">Language Code</label><input type="text" id="f-code" placeholder="MAL" required class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#003049] text-xs text-[#003049] dark:text-white" /></div>
+            <div><label class="block text-xs font-bold mb-1">Medium Name</label><input type="text" id="f-name" placeholder="Malayalam Medium" required class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs text-[#DDA15E] dark:text-white" /></div>
+            <div><label class="block text-xs font-bold mb-1">Language Code</label><input type="text" id="f-code" placeholder="MAL" required class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs text-[#DDA15E] dark:text-white" /></div>
           `;
           break;
         case 'editMedium': {
           const med = curClass?.mediums?.find(m => m.id === targetId);
           title.textContent = "Edit Medium";
           fields.innerHTML = `
-            <div><label class="block text-xs font-bold mb-1">Medium Name</label><input type="text" id="f-name" value="${med?.name || ''}" required class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#003049] text-xs text-[#003049] dark:text-white" /></div>
-            <div><label class="block text-xs font-bold mb-1">Language Code</label><input type="text" id="f-code" value="${med?.code || ''}" required class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#003049] text-xs text-[#003049] dark:text-white" /></div>
+            <div><label class="block text-xs font-bold mb-1">Medium Name</label><input type="text" id="f-name" value="${med?.name || ''}" required class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs text-[#DDA15E] dark:text-white" /></div>
+            <div><label class="block text-xs font-bold mb-1">Language Code</label><input type="text" id="f-code" value="${med?.code || ''}" required class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs text-[#DDA15E] dark:text-white" /></div>
           `;
           break;
         }
         case 'addSubject':
           title.textContent = "Add Subject";
           fields.innerHTML = `
-            <div><label class="block text-xs font-bold mb-1">Subject Name</label><input type="text" id="f-name" placeholder="Chemistry" required class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#003049] text-xs text-[#003049] dark:text-white" /></div>
-            <div><label class="block text-xs font-bold mb-1">Subject Code</label><input type="text" id="f-code" placeholder="CHEM10" required class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#003049] text-xs text-[#003049] dark:text-white" /></div>
-            <div><label class="block text-xs font-bold mb-1">Description</label><input type="text" id="f-desc" placeholder="Organic & Inorganic Chemistry" class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#003049] text-xs text-[#003049] dark:text-white" /></div>
+            <div><label class="block text-xs font-bold mb-1">Subject Name</label><input type="text" id="f-name" placeholder="Chemistry" required class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs text-[#DDA15E] dark:text-white" /></div>
+            <div><label class="block text-xs font-bold mb-1">Subject Code</label><input type="text" id="f-code" placeholder="CHEM10" required class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs text-[#DDA15E] dark:text-white" /></div>
+            <div><label class="block text-xs font-bold mb-1">Description</label><input type="text" id="f-desc" placeholder="Organic & Inorganic Chemistry" class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs text-[#DDA15E] dark:text-white" /></div>
           `;
           break;
         case 'editSubject': {
           const sbj = curMedium?.subjects?.find(s => s.id === targetId);
           title.textContent = "Edit Subject";
           fields.innerHTML = `
-            <div><label class="block text-xs font-bold mb-1">Subject Name</label><input type="text" id="f-name" value="${sbj?.name || ''}" required class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#003049] text-xs text-[#003049] dark:text-white" /></div>
-            <div><label class="block text-xs font-bold mb-1">Subject Code</label><input type="text" id="f-code" value="${sbj?.code || ''}" required class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#003049] text-xs text-[#003049] dark:text-white" /></div>
-            <div><label class="block text-xs font-bold mb-1">Description</label><input type="text" id="f-desc" value="${sbj?.description || ''}" class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#003049] text-xs text-[#003049] dark:text-white" /></div>
+            <div><label class="block text-xs font-bold mb-1">Subject Name</label><input type="text" id="f-name" value="${sbj?.name || ''}" required class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs text-[#DDA15E] dark:text-white" /></div>
+            <div><label class="block text-xs font-bold mb-1">Subject Code</label><input type="text" id="f-code" value="${sbj?.code || ''}" required class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs text-[#DDA15E] dark:text-white" /></div>
+            <div><label class="block text-xs font-bold mb-1">Description</label><input type="text" id="f-desc" value="${sbj?.description || ''}" class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs text-[#DDA15E] dark:text-white" /></div>
           `;
           break;
         }
         case 'addChapter':
           title.textContent = "Add Chapter";
           fields.innerHTML = `
-            <div><label class="block text-xs font-bold mb-1">Chapter Title</label><input type="text" id="f-name" placeholder="Chemical Bonding" required class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#003049] text-xs text-[#003049] dark:text-white" /></div>
-            <div><label class="block text-xs font-bold mb-1">Description</label><textarea id="f-desc" class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#003049] text-xs text-[#003049] dark:text-white" placeholder="Chapter concepts summary..."></textarea></div>
+            <div><label class="block text-xs font-bold mb-1">Chapter Title</label><input type="text" id="f-name" placeholder="Chemical Bonding" required class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs text-[#DDA15E] dark:text-white" /></div>
+            <div><label class="block text-xs font-bold mb-1">Description</label><textarea id="f-desc" class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs text-[#DDA15E] dark:text-white" placeholder="Chapter concepts summary..."></textarea></div>
           `;
           break;
         case 'editChapter': {
           const ch = curSubject?.chapters?.find(c => c.id === targetId);
           title.textContent = "Edit Chapter";
           fields.innerHTML = `
-            <div><label class="block text-xs font-bold mb-1">Chapter Title</label><input type="text" id="f-name" value="${ch?.name || ''}" required class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#003049] text-xs text-[#003049] dark:text-white" /></div>
-            <div><label class="block text-xs font-bold mb-1">Description</label><textarea id="f-desc" class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#003049] text-xs text-[#003049] dark:text-white">${ch?.description || ''}</textarea></div>
+            <div><label class="block text-xs font-bold mb-1">Chapter Title</label><input type="text" id="f-name" value="${ch?.name || ''}" required class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs text-[#DDA15E] dark:text-white" /></div>
+            <div><label class="block text-xs font-bold mb-1">Description</label><textarea id="f-desc" class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs text-[#DDA15E] dark:text-white">${ch?.description || ''}</textarea></div>
           `;
           break;
         }
@@ -1279,9 +1279,9 @@
           const item = list.find(i => i.id === id);
           title.textContent = `Edit Resource Item`;
           fields.innerHTML = `
-            <div><label class="block text-xs font-bold mb-1">Resource Title</label><input type="text" id="f-res-title" value="${item?.title || ''}" required class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#003049] text-xs text-[#003049] dark:text-white" /></div>
-            <div><label class="block text-xs font-bold mb-1">File Path / URL</label><input type="text" id="f-res-url" value="${item?.url || ''}" required class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#003049] text-xs text-[#003049] dark:text-white" /></div>
-            <div><label class="block text-xs font-bold mb-1">Notes / Description</label><textarea id="f-res-content" rows="3" class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#003049] text-xs text-[#003049] dark:text-white">${item?.content || ''}</textarea></div>
+            <div><label class="block text-xs font-bold mb-1">Resource Title</label><input type="text" id="f-res-title" value="${item?.title || ''}" required class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs text-[#DDA15E] dark:text-white" /></div>
+            <div><label class="block text-xs font-bold mb-1">File Path / URL</label><input type="text" id="f-res-url" value="${item?.url || ''}" required class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs text-[#DDA15E] dark:text-white" /></div>
+            <div><label class="block text-xs font-bold mb-1">Notes / Description</label><textarea id="f-res-content" rows="3" class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs text-[#DDA15E] dark:text-white">${item?.content || ''}</textarea></div>
           `;
           break;
         }
@@ -1290,8 +1290,8 @@
           const card = list.find(c => c.id === targetId);
           title.textContent = "Edit Flashcard";
           fields.innerHTML = `
-            <div><label class="block text-xs font-bold mb-1">Front / Question</label><input type="text" id="f-fc-q" value="${card?.q || ''}" required class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#003049] text-xs text-[#003049] dark:text-white" /></div>
-            <div><label class="block text-xs font-bold mb-1">Back / Answer</label><input type="text" id="f-fc-a" value="${card?.a || ''}" required class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#003049] text-xs text-[#003049] dark:text-white" /></div>
+            <div><label class="block text-xs font-bold mb-1">Front / Question</label><input type="text" id="f-fc-q" value="${card?.q || ''}" required class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs text-[#DDA15E] dark:text-white" /></div>
+            <div><label class="block text-xs font-bold mb-1">Back / Answer</label><input type="text" id="f-fc-a" value="${card?.a || ''}" required class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs text-[#DDA15E] dark:text-white" /></div>
           `;
           break;
         }
@@ -1300,12 +1300,12 @@
           const quiz = list.find(q => q.id === targetId);
           title.textContent = "Edit Quiz Question";
           fields.innerHTML = `
-            <div><label class="block text-xs font-bold mb-1">Question</label><input type="text" id="f-qz-q" value="${quiz?.question || ''}" required class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#003049] text-xs text-[#003049] dark:text-white" /></div>
-            <div><label class="block text-xs font-bold mb-1">Option 1</label><input type="text" id="f-qz-o0" value="${quiz?.options[0] || ''}" required class="w-full px-2 py-1.5 rounded-lg border border-[#386641] bg-white dark:bg-[#003049] text-xs" /></div>
-            <div><label class="block text-xs font-bold mb-1">Option 2</label><input type="text" id="f-qz-o1" value="${quiz?.options[1] || ''}" required class="w-full px-2 py-1.5 rounded-lg border border-[#386641] bg-white dark:bg-[#003049] text-xs" /></div>
-            <div><label class="block text-xs font-bold mb-1">Option 3</label><input type="text" id="f-qz-o2" value="${quiz?.options[2] || ''}" required class="w-full px-2 py-1.5 rounded-lg border border-[#386641] bg-white dark:bg-[#003049] text-xs" /></div>
-            <div><label class="block text-xs font-bold mb-1">Option 4</label><input type="text" id="f-qz-o3" value="${quiz?.options[3] || ''}" required class="w-full px-2 py-1.5 rounded-lg border border-[#386641] bg-white dark:bg-[#003049] text-xs" /></div>
-            <div><label class="block text-xs font-bold mb-1">Correct Answer Index (0-3)</label><input type="number" min="0" max="3" id="f-qz-ans" value="${quiz?.answer || 0}" required class="w-full px-3 py-1.5 rounded-lg border border-[#386641] bg-white dark:bg-[#003049] text-xs" /></div>
+            <div><label class="block text-xs font-bold mb-1">Question</label><input type="text" id="f-qz-q" value="${quiz?.question || ''}" required class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs text-[#DDA15E] dark:text-white" /></div>
+            <div><label class="block text-xs font-bold mb-1">Option 1</label><input type="text" id="f-qz-o0" value="${quiz?.options[0] || ''}" required class="w-full px-2 py-1.5 rounded-lg border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs" /></div>
+            <div><label class="block text-xs font-bold mb-1">Option 2</label><input type="text" id="f-qz-o1" value="${quiz?.options[1] || ''}" required class="w-full px-2 py-1.5 rounded-lg border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs" /></div>
+            <div><label class="block text-xs font-bold mb-1">Option 3</label><input type="text" id="f-qz-o2" value="${quiz?.options[2] || ''}" required class="w-full px-2 py-1.5 rounded-lg border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs" /></div>
+            <div><label class="block text-xs font-bold mb-1">Option 4</label><input type="text" id="f-qz-o3" value="${quiz?.options[3] || ''}" required class="w-full px-2 py-1.5 rounded-lg border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs" /></div>
+            <div><label class="block text-xs font-bold mb-1">Correct Answer Index (0-3)</label><input type="number" min="0" max="3" id="f-qz-ans" value="${quiz?.answer || 0}" required class="w-full px-3 py-1.5 rounded-lg border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs" /></div>
           `;
           break;
         }
@@ -1329,20 +1329,20 @@
             <input type="file" accept="${restr.accept}" id="f-csv-file" onchange="parseLocalCsvFile(event)" class="w-full text-xs text-slate-500" />
           </div>
           <div class="text-center text-xs font-bold text-[#386641] dark:text-[#DDA15E]">OR Direct CSV Text Input</div>
-          <textarea id="f-raw-csv" rows="5" placeholder="Paste CSV text here..." class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#003049] text-xs font-mono text-[#003049] dark:text-white"></textarea>
+          <textarea id="f-raw-csv" rows="5" placeholder="Paste CSV text here..." class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs font-mono text-[#DDA15E] dark:text-white"></textarea>
         `;
       } else {
         container.innerHTML = `
-          <div><label class="block text-xs font-bold mb-1">Resource Title</label><input type="text" id="f-res-title" placeholder="e.g. Part 2 - Advanced Lecture" class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#003049] text-xs text-[#003049] dark:text-white" /></div>
+          <div><label class="block text-xs font-bold mb-1">Resource Title</label><input type="text" id="f-res-title" placeholder="e.g. Part 2 - Advanced Lecture" class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs text-[#DDA15E] dark:text-white" /></div>
           <div>
             <label class="block text-xs font-bold mb-1">Path String or Direct Web URL</label>
-            <input type="text" id="f-res-url" placeholder="e.g. ./media/lecture1.mp4 or https://..." class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#003049] text-xs text-[#003049] dark:text-white" />
+            <input type="text" id="f-res-url" placeholder="e.g. ./media/lecture1.mp4 or https://..." class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs text-[#DDA15E] dark:text-white" />
           </div>
           <div>
             <label class="block text-xs font-bold mb-1">OR Select Local File (${restr.accept})</label>
             <input type="file" accept="${restr.accept}" id="f-local-file" onchange="parseLocalFile(event, '${restr.accept}')" class="w-full text-xs text-slate-500" />
           </div>
-          <div><label class="block text-xs font-bold mb-1">Notes / Description</label><textarea id="f-res-content" rows="3" placeholder="Enter optional text notes..." class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#003049] text-xs text-[#003049] dark:text-white"></textarea></div>
+          <div><label class="block text-xs font-bold mb-1">Notes / Description</label><textarea id="f-res-content" rows="3" placeholder="Enter optional text notes..." class="w-full px-3 py-2 rounded-xl border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs text-[#DDA15E] dark:text-white"></textarea></div>
         `;
       }
     }
@@ -1410,11 +1410,11 @@
     function renderMindMapBuilder(container) {
       container.innerHTML = `
         <div class="space-y-3 text-xs">
-          <div><label class="font-bold block mb-1">Central Root Node Title</label><input type="text" id="mm-root" value="Optics" class="w-full px-3 py-1.5 rounded-lg border border-[#386641] bg-white dark:bg-[#003049] text-xs text-[#003049] dark:text-white" /></div>
-          <div><label class="font-bold block mb-1">Branch 1 Title (Red)</label><input type="text" id="mm-b1-title" value="Reflection" class="w-full px-3 py-1.5 rounded-lg border border-[#386641] bg-white dark:bg-[#003049] text-xs text-[#003049] dark:text-white" /></div>
-          <div><label class="font-bold block mb-1">Branch 1 Subnodes (Comma separated)</label><input type="text" id="mm-b1-sub" value="Concave Mirrors, Convex Mirrors" class="w-full px-3 py-1.5 rounded-lg border border-[#386641] bg-white dark:bg-[#003049] text-xs text-[#003049] dark:text-white" /></div>
-          <div><label class="font-bold block mb-1">Branch 2 Title (Green)</label><input type="text" id="mm-b2-title" value="Refraction" class="w-full px-3 py-1.5 rounded-lg border border-[#386641] bg-white dark:bg-[#003049] text-xs text-[#003049] dark:text-white" /></div>
-          <div><label class="font-bold block mb-1">Branch 2 Subnodes (Comma separated)</label><input type="text" id="mm-b2-sub" value="Snell Law, Lenses, Power" class="w-full px-3 py-1.5 rounded-lg border border-[#386641] bg-white dark:bg-[#003049] text-xs text-[#003049] dark:text-white" /></div>
+          <div><label class="font-bold block mb-1">Central Root Node Title</label><input type="text" id="mm-root" value="Optics" class="w-full px-3 py-1.5 rounded-lg border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs text-[#DDA15E] dark:text-white" /></div>
+          <div><label class="font-bold block mb-1">Branch 1 Title (Red)</label><input type="text" id="mm-b1-title" value="Reflection" class="w-full px-3 py-1.5 rounded-lg border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs text-[#DDA15E] dark:text-white" /></div>
+          <div><label class="font-bold block mb-1">Branch 1 Subnodes (Comma separated)</label><input type="text" id="mm-b1-sub" value="Concave Mirrors, Convex Mirrors" class="w-full px-3 py-1.5 rounded-lg border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs text-[#DDA15E] dark:text-white" /></div>
+          <div><label class="font-bold block mb-1">Branch 2 Title (Green)</label><input type="text" id="mm-b2-title" value="Refraction" class="w-full px-3 py-1.5 rounded-lg border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs text-[#DDA15E] dark:text-white" /></div>
+          <div><label class="font-bold block mb-1">Branch 2 Subnodes (Comma separated)</label><input type="text" id="mm-b2-sub" value="Snell Law, Lenses, Power" class="w-full px-3 py-1.5 rounded-lg border border-[#386641] bg-white dark:bg-[#DDA15E] text-xs text-[#DDA15E] dark:text-white" /></div>
         </div>
       `;
     }
