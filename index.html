@@ -37,7 +37,7 @@
     <div id="admin-bar" class="hidden bg-amber-500 text-slate-950 font-semibold px-4 py-1.5 text-xs sm:text-sm flex justify-between items-center shadow-inner">
       <div class="flex items-center gap-2">
         <i class="fa-solid fa-user-shield text-base"></i>
-        <span><strong>Admin Mode Active:</strong> Edit titles, upload multiple files per section, or configure paths.</span>
+        <span><strong>Admin Mode Active:</strong> Add classes, subjects, or assign local filenames to learning modules.</span>
       </div>
       <div class="flex items-center gap-2">
         <button onclick="resetToDefaults()" class="bg-amber-700 hover:bg-amber-800 text-white px-2 py-0.5 rounded text-xs transition">Reset All Data</button>
@@ -152,7 +152,7 @@
       datatable: { accept: ".csv", label: "Data Table (.CSV)" }
     };
 
-    // --- INITIAL SEED DATA WITH MULTI-FILE ARRAYS ---
+    // --- INITIAL SEED DATA ---
     const INITIAL_DATA = {
       classes: [
         {
@@ -179,7 +179,7 @@
                       description: "Laws of reflection, spherical mirrors, refraction, Snell's law, and optical instruments.",
                       resources: {
                         audio: [
-                          { id: "aud-1", title: "Optics Core Lecture", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", type: "audio/mp3", content: "Introduction to Reflection & Spherical Mirror Laws." }
+                          { id: "aud-1", title: "Optics Core Lecture", url: "sample_audio.mp3", type: "audio/mp3", content: "Introduction to Reflection & Spherical Mirror Laws." }
                         ],
                         video: [
                           { id: "vid-1", title: "Spherical Mirrors & Ray Diagrams", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4", type: "video/mp4", content: "Ray tracing tutorial for concave and convex mirrors." },
@@ -645,7 +645,7 @@
       container.innerHTML = html;
     }
 
-    // 5. CHAPTER RESOURCE HUB (10 DEDICATED SECTIONS)
+    // 5. CHAPTER RESOURCE HUB
     function renderChapterDetailView(container) {
       const curClass = appState.data.classes.find(c => c.id === appState.selectedClassId);
       const curMedium = curClass?.mediums?.find(m => m.id === appState.selectedMediumId);
@@ -714,7 +714,6 @@
       renderChapterDetailView(document.getElementById('app-content'));
     }
 
-    // Normalize target resources into arrays safely
     function getResourceList(resources, tab) {
       if (!resources || !resources[tab]) return [];
       if (Array.isArray(resources[tab])) return resources[tab];
@@ -742,7 +741,7 @@
                         </div>
                         <div>
                           <h4 class="font-bold text-sm text-slate-900 dark:text-white">${i + 1}. ${res.title || 'Audio Recording'}</h4>
-                          <span class="text-[10px] text-slate-400 font-mono">${res.type || 'audio/mp3'}</span>
+                          <span class="text-[10px] text-slate-400 font-mono">${res.url}</span>
                         </div>
                       </div>
                       ${appState.isAdmin ? `
@@ -791,6 +790,9 @@
                         <source src="${res.url}" type="${res.type || 'video/mp4'}">
                         Your browser does not support video playback.
                       </video>
+                    </div>
+                    <div class="flex justify-between items-center text-[10px] text-slate-400 font-mono">
+                      <span>Source: ${res.url}</span>
                     </div>
                     ${res.content ? `<p class="text-xs text-slate-500 dark:text-slate-400">${res.content}</p>` : ''}
                   </div>
@@ -930,7 +932,7 @@
           </div>
           <h4 class="text-base font-bold text-slate-800 dark:text-slate-200">No ${title} Uploaded</h4>
           <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
-            ${appState.isAdmin ? 'Click "Add File / Item" above to upload or assign local files.' : 'This module has not been uploaded yet for this chapter.'}
+            ${appState.isAdmin ? 'Click "Add File / Item" above to choose or type a local filename in your project folder.' : 'This module has not been uploaded yet for this chapter.'}
           </p>
         </div>
       `;
@@ -1189,8 +1191,6 @@
       const fields = document.getElementById('modal-fields');
 
       fields.innerHTML = '';
-      loadedFileBlob = null;
-      loadedFileType = null;
       modal.classList.remove('hidden');
 
       const curClass = appState.data.classes.find(c => c.id === appState.selectedClassId);
@@ -1209,8 +1209,8 @@
         case 'editClass':
           title.textContent = "Edit Class";
           fields.innerHTML = `
-            <div><label class="block text-xs font-semibold mb-1">Class Name</label><input type="text" id="f-name" value="${curClass.name}" required class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
-            <div><label class="block text-xs font-semibold mb-1">Description</label><input type="text" id="f-desc" value="${curClass.description || ''}" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Class Name</label><input type="text" id="f-name" value="${curClass?.name || ''}" required class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Description</label><input type="text" id="f-desc" value="${curClass?.description || ''}" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
           `;
           break;
         case 'addMedium':
@@ -1221,11 +1221,11 @@
           `;
           break;
         case 'editMedium': {
-          const med = curClass.mediums.find(m => m.id === targetId);
+          const med = curClass?.mediums?.find(m => m.id === targetId);
           title.textContent = "Edit Medium";
           fields.innerHTML = `
-            <div><label class="block text-xs font-semibold mb-1">Medium Name</label><input type="text" id="f-name" value="${med.name}" required class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
-            <div><label class="block text-xs font-semibold mb-1">Language Code</label><input type="text" id="f-code" value="${med.code}" required class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Medium Name</label><input type="text" id="f-name" value="${med?.name || ''}" required class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Language Code</label><input type="text" id="f-code" value="${med?.code || ''}" required class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
           `;
           break;
         }
@@ -1238,12 +1238,12 @@
           `;
           break;
         case 'editSubject': {
-          const sbj = curMedium.subjects.find(s => s.id === targetId);
+          const sbj = curMedium?.subjects?.find(s => s.id === targetId);
           title.textContent = "Edit Subject";
           fields.innerHTML = `
-            <div><label class="block text-xs font-semibold mb-1">Subject Name</label><input type="text" id="f-name" value="${sbj.name}" required class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
-            <div><label class="block text-xs font-semibold mb-1">Subject Code</label><input type="text" id="f-code" value="${sbj.code || ''}" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
-            <div><label class="block text-xs font-semibold mb-1">Description</label><input type="text" id="f-desc" value="${sbj.description || ''}" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Subject Name</label><input type="text" id="f-name" value="${sbj?.name || ''}" required class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Subject Code</label><input type="text" id="f-code" value="${sbj?.code || ''}" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Description</label><input type="text" id="f-desc" value="${sbj?.description || ''}" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
           `;
           break;
         }
@@ -1255,11 +1255,11 @@
           `;
           break;
         case 'editChapter': {
-          const ch = curSubject.chapters.find(c => c.id === targetId);
+          const ch = curSubject?.chapters?.find(c => c.id === targetId);
           title.textContent = "Edit Chapter";
           fields.innerHTML = `
-            <div><label class="block text-xs font-semibold mb-1">Chapter Title</label><input type="text" id="f-name" value="${ch.name}" required class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
-            <div><label class="block text-xs font-semibold mb-1">Description</label><textarea id="f-desc" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs">${ch.description || ''}</textarea></div>
+            <div><label class="block text-xs font-semibold mb-1">Chapter Title</label><input type="text" id="f-name" value="${ch?.name || ''}" required class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Description</label><textarea id="f-desc" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs">${ch?.description || ''}</textarea></div>
           `;
           break;
         }
@@ -1349,6 +1349,25 @@
 
         const urlInput = document.getElementById('f-res-url');
         if (urlInput) urlInput.value = loadedFileBlob;
+
+        const titleInput = document.getElementById('f-res-title');
+        if (titleInput && !titleInput.value) {
+          titleInput.value = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+        }
+      }
+    }
+
+    function handleFileSelectFilename(e, allowed) {
+      if (!validateFileExtension(e.target, allowed)) return;
+      const file = e.target.files[0];
+      if (file) {
+        const filename = file.name;
+        const urlInput = document.getElementById('f-res-url');
+        if (urlInput) urlInput.value = filename;
+        const titleInput = document.getElementById('f-res-title');
+        if (titleInput && !titleInput.value) {
+          titleInput.value = filename.substring(0, filename.lastIndexOf('.')) || filename;
+        }
       }
     }
 
@@ -1449,7 +1468,6 @@
               }
             } else {
               if (!Array.isArray(curChapter.resources[tab])) {
-                // Preserve legacy single-item as first array item if upgrading state
                 const existing = curChapter.resources[tab];
                 curChapter.resources[tab] = existing && existing.url ? [existing] : [];
               }
@@ -1458,16 +1476,13 @@
               const url = document.getElementById('f-res-url').value;
               const content = document.getElementById('f-res-content').value;
 
-              let mimeType = loadedFileType;
-              if (!mimeType) {
-                const lowerUrl = url.toLowerCase();
-                if (lowerUrl.endsWith('.mp4')) mimeType = 'video/mp4';
-                else if (lowerUrl.endsWith('.mov')) mimeType = 'video/quicktime';
-                else if (lowerUrl.endsWith('.mp3')) mimeType = 'audio/mpeg';
-                else if (lowerUrl.endsWith('.wav')) mimeType = 'audio/wav';
-                else if (lowerUrl.endsWith('.pdf')) mimeType = 'application/pdf';
-                else mimeType = 'application/octet-stream';
-              }
+              let mimeType = 'application/octet-stream';
+              const lowerUrl = url.toLowerCase();
+              if (lowerUrl.endsWith('.mp4')) mimeType = 'video/mp4';
+              else if (lowerUrl.endsWith('.mov')) mimeType = 'video/quicktime';
+              else if (lowerUrl.endsWith('.mp3')) mimeType = 'audio/mpeg';
+              else if (lowerUrl.endsWith('.wav')) mimeType = 'audio/wav';
+              else if (lowerUrl.endsWith('.pdf')) mimeType = 'application/pdf';
 
               curChapter.resources[tab].push({
                 id: 'res-' + Date.now(),
