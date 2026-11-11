@@ -28,6 +28,10 @@
     .transform-style-3d { transform-style: preserve-3d; }
     .backface-hidden { backface-visibility: hidden; }
     .rotate-y-180 { transform: rotateY(180deg); }
+    .card-3d { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .card-3d:hover { transform: translateY(-5px) rotateX(2deg) rotateY(-2deg); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+    .btn-3d { transition: transform 0.15s ease, box-shadow 0.15s ease; }
+    .btn-3d:active { transform: translateY(2px); }
   </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
@@ -68,7 +72,7 @@
           </button>
 
           <div id="admin-auth-btn">
-            <button onclick="openAdminModal()" class="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-brand-500 hover:text-white transition font-medium text-xs sm:text-sm flex items-center gap-2">
+            <button onclick="openAdminModal()" class="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-brand-500 hover:text-white transition font-medium text-xs sm:text-sm flex items-center gap-2 btn-3d">
               <i class="fa-solid fa-lock"></i>
               <span id="admin-btn-text">Admin Login</span>
             </button>
@@ -98,7 +102,7 @@
         </div>
         <div class="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700 mt-auto">
           <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium text-xs">Cancel</button>
-          <button type="submit" class="px-5 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-medium text-xs shadow-md">Add / Save Item</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-medium text-xs shadow-md btn-3d">Add / Save Item</button>
         </div>
       </form>
     </div>
@@ -122,7 +126,7 @@
           <input type="password" id="admin-password-input" placeholder="Passcode" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-center font-mono text-lg tracking-widest outline-none focus:ring-2 focus:ring-amber-500" />
           <p id="admin-login-error" class="text-red-500 text-xs mt-1.5 hidden text-center font-medium">Invalid passcode. Please try again.</p>
         </div>
-        <button type="submit" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-sm shadow-md">
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-sm shadow-md btn-3d">
           Verify & Unlock
         </button>
       </form>
@@ -425,7 +429,7 @@
             <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mt-0.5">Select a class level to proceed to language medium selection.</p>
           </div>
           ${appState.isAdmin ? `
-            <button onclick="openModal('addClass')" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold text-xs shadow-md transition flex items-center gap-2">
+            <button onclick="openModal('addClass')" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold text-xs shadow-md transition flex items-center gap-2 btn-3d">
               <i class="fa-solid fa-plus font-bold"></i> Add Class
             </button>
           ` : ''}
@@ -435,7 +439,7 @@
 
       appState.data.classes.forEach(cls => {
         html += `
-          <div class="bg-white dark:bg-slate-800/90 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm hover:shadow-xl transition flex flex-col justify-between group">
+          <div class="bg-white dark:bg-slate-800/90 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm hover:shadow-xl transition flex flex-col justify-between group card-3d">
             <div>
               <div class="flex justify-between items-start mb-4">
                 <div class="w-12 h-12 rounded-2xl bg-brand-50 dark:bg-slate-700 text-brand-600 dark:text-brand-400 flex items-center justify-center text-2xl group-hover:scale-105 transition">
@@ -453,7 +457,7 @@
             </div>
             <div class="pt-4 mt-6 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between">
               <span class="text-xs font-semibold text-slate-400">${cls.mediums?.length || 0} Mediums</span>
-              <button onclick="navigateTo('mediums', '${cls.id}')" class="px-4 py-2 rounded-xl bg-brand-50 dark:bg-brand-900/40 text-brand-600 dark:text-brand-300 font-semibold text-xs hover:bg-brand-600 hover:text-white transition flex items-center gap-1.5">
+              <button onclick="navigateTo('mediums', '${cls.id}')" class="px-4 py-2 rounded-xl bg-brand-50 dark:bg-brand-900/40 text-brand-600 dark:text-brand-300 font-semibold text-xs hover:bg-brand-600 hover:text-white transition flex items-center gap-1.5 btn-3d">
                 Select Medium <i class="fa-solid fa-arrow-right text-[10px]"></i>
               </button>
             </div>
@@ -480,7 +484,7 @@
             <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm">Choose instruction language for ${curClass.name}.</p>
           </div>
           ${appState.isAdmin ? `
-            <button onclick="openModal('addMedium')" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold text-xs shadow-md transition flex items-center gap-2">
+            <button onclick="openModal('addMedium')" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold text-xs shadow-md transition flex items-center gap-2 btn-3d">
               <i class="fa-solid fa-plus font-bold"></i> Add Medium
             </button>
           ` : ''}
@@ -493,7 +497,7 @@
       } else {
         curClass.mediums.forEach(med => {
           html += `
-            <div class="bg-white dark:bg-slate-800/90 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm hover:shadow-xl transition flex flex-col justify-between group">
+            <div class="bg-white dark:bg-slate-800/90 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm hover:shadow-xl transition flex flex-col justify-between group card-3d">
               <div>
                 <div class="flex justify-between items-start mb-4">
                   <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-2xl group-hover:scale-105 transition">
@@ -511,7 +515,7 @@
               </div>
               <div class="pt-4 mt-6 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between">
                 <span class="text-xs font-semibold text-slate-400">${med.subjects?.length || 0} Subjects</span>
-                <button onclick="navigateTo('subjects', '${curClass.id}', '${med.id}')" class="px-4 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300 font-semibold text-xs hover:bg-indigo-600 hover:text-white transition flex items-center gap-1.5">
+                <button onclick="navigateTo('subjects', '${curClass.id}', '${med.id}')" class="px-4 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300 font-semibold text-xs hover:bg-indigo-600 hover:text-white transition flex items-center gap-1.5 btn-3d">
                   View Subjects <i class="fa-solid fa-arrow-right text-[10px]"></i>
                 </button>
               </div>
@@ -540,7 +544,7 @@
             <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm">Course subjects for ${curClass.name}.</p>
           </div>
           ${appState.isAdmin ? `
-            <button onclick="openModal('addSubject')" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold text-xs shadow-md transition flex items-center gap-2">
+            <button onclick="openModal('addSubject')" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold text-xs shadow-md transition flex items-center gap-2 btn-3d">
               <i class="fa-solid fa-plus font-bold"></i> Add Subject
             </button>
           ` : ''}
@@ -553,7 +557,7 @@
       } else {
         curMedium.subjects.forEach(sbj => {
           html += `
-            <div class="bg-white dark:bg-slate-800/90 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm hover:shadow-xl transition flex flex-col justify-between group">
+            <div class="bg-white dark:bg-slate-800/90 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm hover:shadow-xl transition flex flex-col justify-between group card-3d">
               <div>
                 <div class="flex justify-between items-start mb-4">
                   <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-2xl group-hover:scale-105 transition">
@@ -572,7 +576,7 @@
               </div>
               <div class="pt-4 mt-6 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between">
                 <span class="text-xs font-semibold text-slate-400">${sbj.chapters?.length || 0} Chapters</span>
-                <button onclick="navigateTo('chapters', '${curClass.id}', '${curMedium.id}', '${sbj.id}')" class="px-4 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-300 font-semibold text-xs hover:bg-emerald-600 hover:text-white transition flex items-center gap-1.5">
+                <button onclick="navigateTo('chapters', '${curClass.id}', '${curMedium.id}', '${sbj.id}')" class="px-4 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-300 font-semibold text-xs hover:bg-emerald-600 hover:text-white transition flex items-center gap-1.5 btn-3d">
                   View Chapters <i class="fa-solid fa-arrow-right text-[10px]"></i>
                 </button>
               </div>
@@ -602,7 +606,7 @@
             <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm">Select a chapter to launch all 10 dedicated learning modules.</p>
           </div>
           ${appState.isAdmin ? `
-            <button onclick="openModal('addChapter')" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold text-xs shadow-md transition flex items-center gap-2">
+            <button onclick="openModal('addChapter')" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold text-xs shadow-md transition flex items-center gap-2 btn-3d">
               <i class="fa-solid fa-plus font-bold"></i> Add Chapter
             </button>
           ` : ''}
@@ -615,7 +619,7 @@
       } else {
         curSubject.chapters.forEach((ch, idx) => {
           html += `
-            <div class="bg-white dark:bg-slate-800/90 rounded-2xl p-5 border border-slate-200 dark:border-slate-700/60 shadow-sm hover:shadow-md transition flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="bg-white dark:bg-slate-800/90 rounded-2xl p-5 border border-slate-200 dark:border-slate-700/60 shadow-sm hover:shadow-md transition flex flex-col md:flex-row md:items-center justify-between gap-4 card-3d">
               <div class="flex items-start gap-4">
                 <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-700 font-bold text-slate-700 dark:text-slate-200 flex items-center justify-center shrink-0">
                   ${idx + 1}
@@ -632,7 +636,7 @@
                     <button onclick="deleteChapter('${ch.id}')" class="p-1.5 text-slate-500 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
                   </div>
                 ` : ''}
-                <button onclick="navigateTo('chapter-detail', '${curClass.id}', '${curMedium.id}', '${curSubject.id}', '${ch.id}')" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs transition shadow-sm flex items-center gap-2">
+                <button onclick="navigateTo('chapter-detail', '${curClass.id}', '${curMedium.id}', '${curSubject.id}', '${ch.id}')" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs transition shadow-sm flex items-center gap-2 btn-3d">
                   Open Chapter Hub <i class="fa-solid fa-arrow-right text-[10px]"></i>
                 </button>
               </div>
@@ -684,7 +688,7 @@
               <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight mt-1">${curChapter.name}</h1>
             </div>
             ${appState.isAdmin ? `
-              <button onclick="openModal('uploadResource', '${appState.selectedTab}')" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs shadow-md transition flex items-center gap-2">
+              <button onclick="openModal('uploadResource', '${appState.selectedTab}')" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs shadow-md transition flex items-center gap-2 btn-3d">
                 <i class="fa-solid fa-cloud-arrow-up"></i> Add File / Item to ${currentTabObj.label}
               </button>
             ` : ''}
@@ -694,7 +698,7 @@
         <!-- Horizontal Resource Section Selector -->
         <div class="flex items-center gap-2 overflow-x-auto pb-3 mb-6 border-b border-slate-200 dark:border-slate-800 scrollbar-thin">
           ${MODULES.map(tab => `
-            <button onclick="switchTab('${tab.id}')" class="flex items-center gap-2 px-3.5 py-2 rounded-xl font-medium text-xs whitespace-nowrap transition ${appState.selectedTab === tab.id ? 'bg-brand-600 text-white shadow-md' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}">
+            <button onclick="switchTab('${tab.id}')" class="flex items-center gap-2 px-3.5 py-2 rounded-xl font-medium text-xs whitespace-nowrap transition btn-3d ${appState.selectedTab === tab.id ? 'bg-brand-600 text-white shadow-md' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}">
               <i class="fa-solid ${tab.icon}"></i> ${tab.label}
             </button>
           `).join('')}
@@ -734,7 +738,7 @@
               </div>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 ${list.map((res, i) => `
-                  <div class="p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 space-y-3 relative group">
+                  <div class="p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 space-y-3 relative group card-3d">
                     <div class="flex justify-between items-start">
                       <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-xl bg-brand-500/10 text-brand-500 flex items-center justify-center font-bold text-lg">
@@ -773,7 +777,7 @@
               </div>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 ${list.map((res, i) => `
-                  <div class="p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 space-y-3 relative">
+                  <div class="p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 space-y-3 relative card-3d">
                     <div class="flex justify-between items-center">
                       <h4 class="font-bold text-sm text-slate-900 dark:text-white truncate pr-2">${i + 1}. ${res.title || 'Video Lecture'}</h4>
                       <div class="flex items-center gap-2">
@@ -806,7 +810,7 @@
             <div class="space-y-6">
               <h3 class="text-lg font-bold text-slate-900 dark:text-white">Reports & Lecture Notes (${list.length})</h3>
               ${list.map((res, i) => `
-                <div class="p-5 bg-slate-50 dark:bg-slate-900/60 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+                <div class="p-5 bg-slate-50 dark:bg-slate-900/60 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4 card-3d">
                   <div class="flex justify-between items-center flex-wrap gap-2">
                     <div class="flex items-center gap-2">
                       <span class="w-6 h-6 rounded-lg bg-brand-600 text-white flex items-center justify-center font-bold text-xs">${i + 1}</span>
@@ -851,7 +855,7 @@
               <h3 class="text-lg font-bold text-slate-900 dark:text-white">Slide Decks (${list.length})</h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 ${list.map((slides, i) => `
-                  <div class="p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3">
+                  <div class="p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3 card-3d">
                     <div class="flex justify-between items-center">
                       <h4 class="font-bold text-sm text-slate-900 dark:text-white">${i + 1}. ${slides.title || 'Presentation Deck'}</h4>
                       <div class="flex items-center gap-2">
@@ -891,7 +895,7 @@
                 ${list.map((info, i) => {
                   const isPdf = info.type === 'application/pdf' || (info.url && info.url.endsWith('.pdf'));
                   return `
-                    <div class="p-3 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2 relative group">
+                    <div class="p-3 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2 relative group card-3d">
                       <div class="flex justify-between items-center">
                         <span class="text-xs font-bold text-slate-900 dark:text-white truncate">${i + 1}. ${info.title || 'Infographic'}</span>
                         ${appState.isAdmin ? `
@@ -910,7 +914,7 @@
                           <img src="${info.url}" class="max-h-full max-w-full object-contain" alt="Infographic" />
                         </div>
                       `}
-                      <button onclick="openLightboxFile('${info.url}', '${isPdf ? 'pdf' : 'img'}')" class="w-full py-1 rounded-lg bg-slate-200 dark:bg-slate-800 text-[11px] font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-300">
+                      <button onclick="openLightboxFile('${info.url}', '${isPdf ? 'pdf' : 'img'}')" class="w-full py-1 rounded-lg bg-slate-200 dark:bg-slate-800 text-[11px] font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-300 btn-3d">
                         Preview
                       </button>
                     </div>
@@ -977,8 +981,8 @@
             </div>
           </div>
           <div class="flex justify-between items-center">
-            <button onclick="cardFlipped=false; cardIdx = (cardIdx - 1 + ${cards.length}) % ${cards.length}; renderChapterDetailView(document.getElementById('app-content'));" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 text-xs font-semibold hover:bg-slate-200">Previous</button>
-            <button onclick="cardFlipped=false; cardIdx = (cardIdx + 1) % ${cards.length}; renderChapterDetailView(document.getElementById('app-content'));" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 text-xs font-semibold hover:bg-slate-200">Next</button>
+            <button onclick="cardFlipped=false; cardIdx = (cardIdx - 1 + ${cards.length}) % ${cards.length}; renderChapterDetailView(document.getElementById('app-content'));" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 text-xs font-semibold hover:bg-slate-200 btn-3d">Previous</button>
+            <button onclick="cardFlipped=false; cardIdx = (cardIdx + 1) % ${cards.length}; renderChapterDetailView(document.getElementById('app-content'));" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 text-xs font-semibold hover:bg-slate-200 btn-3d">Next</button>
           </div>
         </div>
       `;
@@ -992,10 +996,10 @@
             <h3 class="text-lg font-bold text-slate-900 dark:text-white">Interactive Mind Map Graph</h3>
             ${appState.isAdmin ? `
               <div class="flex items-center gap-2">
-                <button onclick="openModal('editMindmap')" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold">
+                <button onclick="openModal('editMindmap')" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold btn-3d">
                   <i class="fa-solid fa-diagram-next"></i> Mind Map Builder
                 </button>
-                <button onclick="deleteResourceItem('mindmap')" class="px-3 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-700 text-red-500 text-xs font-bold">
+                <button onclick="deleteResourceItem('mindmap')" class="px-3 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-700 text-red-500 text-xs font-bold btn-3d">
                   <i class="fa-solid fa-trash"></i>
                 </button>
               </div>
@@ -1045,7 +1049,7 @@
               <h3 class="text-2xl font-bold text-slate-900 dark:text-white">Quiz Completed</h3>
               <p class="text-xs text-slate-400 mt-1">Score: ${Math.round((score/quiz.length)*100)}%</p>
             </div>
-            <button onclick="quizSubmitted=false; userAnswers={}; renderChapterDetailView(document.getElementById('app-content'));" class="px-6 py-2.5 rounded-xl bg-brand-600 text-white font-semibold text-xs shadow-md">Retry Quiz</button>
+            <button onclick="quizSubmitted=false; userAnswers={}; renderChapterDetailView(document.getElementById('app-content'));" class="px-6 py-2.5 rounded-xl bg-brand-600 text-white font-semibold text-xs shadow-md btn-3d">Retry Quiz</button>
           </div>
         `;
       }
@@ -1055,7 +1059,7 @@
           <h3 class="text-lg font-bold text-slate-900 dark:text-white">Interactive Assessment</h3>
           <div class="space-y-6">
             ${quiz.map((q, idx) => `
-              <div class="p-4 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3 relative">
+              <div class="p-4 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3 relative card-3d">
                 ${appState.isAdmin ? `
                   <div class="absolute top-3 right-3 flex gap-2">
                     <button onclick="openModal('editQuizItem', '${q.id}')" class="text-xs text-slate-500 hover:text-brand-500"><i class="fa-solid fa-pen"></i></button>
@@ -1065,7 +1069,7 @@
                 <p class="font-semibold text-xs sm:text-sm text-slate-900 dark:text-white pr-12">${idx + 1}. ${q.question}</p>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   ${q.options.map((opt, oIdx) => `
-                    <button onclick="userAnswers[${idx}] = ${oIdx}; renderChapterDetailView(document.getElementById('app-content'));" class="p-2.5 rounded-lg border text-left text-xs font-medium transition ${userAnswers[idx] === oIdx ? 'bg-brand-600 text-white border-brand-600' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-brand-500'}">
+                    <button onclick="userAnswers[${idx}] = ${oIdx}; renderChapterDetailView(document.getElementById('app-content'));" class="p-2.5 rounded-lg border text-left text-xs font-medium transition btn-3d ${userAnswers[idx] === oIdx ? 'bg-brand-600 text-white border-brand-600' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-brand-500'}">
                       ${opt}
                     </button>
                   `).join('')}
@@ -1073,7 +1077,7 @@
               </div>
             `).join('')}
           </div>
-          <button onclick="quizSubmitted=true; renderChapterDetailView(document.getElementById('app-content'));" class="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs shadow-md" ${Object.keys(userAnswers).length < quiz.length ? 'disabled opacity-50' : ''}>
+          <button onclick="quizSubmitted=true; renderChapterDetailView(document.getElementById('app-content'));" class="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs shadow-md btn-3d" ${Object.keys(userAnswers).length < quiz.length ? 'disabled opacity-50' : ''}>
             Submit Assessment
           </button>
         </div>
@@ -1091,7 +1095,7 @@
             <h3 class="text-lg font-bold text-slate-900 dark:text-white">Reference Data Table</h3>
             <div class="flex items-center gap-2 w-full sm:w-auto">
               <input type="text" placeholder="Search rows..." value="${tableSearchQuery}" oninput="tableSearchQuery = this.value; renderChapterDetailView(document.getElementById('app-content'));" class="px-3.5 py-1.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs outline-none focus:ring-2 focus:ring-brand-500 w-full sm:w-64" />
-              ${appState.isAdmin ? `<button onclick="deleteResourceItem('datatable', '${dt.id}')" class="px-3 py-1.5 rounded-xl bg-red-500 text-white text-xs font-bold hover:bg-red-600"><i class="fa-solid fa-trash"></i></button>` : ''}
+              ${appState.isAdmin ? `<button onclick="deleteResourceItem('datatable', '${dt.id}')" class="px-3 py-1.5 rounded-xl bg-red-500 text-white text-xs font-bold hover:bg-red-600 btn-3d"><i class="fa-solid fa-trash"></i></button>` : ''}
             </div>
           </div>
           <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
@@ -1145,7 +1149,7 @@
 
           <form onsubmit="handleAIChat(event, ${JSON.stringify(resources).replace(/"/g, '&quot;')})" class="flex gap-2 pt-3 border-t border-slate-200 dark:border-slate-700 mt-2">
             <input type="text" id="ai-chat-input" placeholder="Ask a question about this chapter's materials..." required class="flex-grow px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500" />
-            <button type="submit" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold"><i class="fa-solid fa-paper-plane"></i></button>
+            <button type="submit" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold btn-3d"><i class="fa-solid fa-paper-plane"></i></button>
           </form>
         </div>
       `;
