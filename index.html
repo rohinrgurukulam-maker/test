@@ -41,10 +41,10 @@
     <div id="admin-bar" class="hidden bg-amber-500 text-slate-950 font-semibold px-4 py-1.5 text-xs sm:text-sm flex justify-between items-center shadow-inner">
       <div class="flex items-center gap-2">
         <i class="fa-solid fa-user-shield text-base"></i>
-        <span><strong>Admin Mode Active:</strong> Edit any text, manage custom images, logos, and configure items.</span>
+        <span><strong>Admin Mode Active:</strong> Edit texts, change logos, manage class/medium/subject/chapter images & items.</span>
       </div>
       <div class="flex items-center gap-2">
-        <button onclick="openModal('editGlobalConfig')" class="bg-slate-900 text-white px-2.5 py-0.5 rounded text-xs transition hover:bg-slate-800"><i class="fa-solid fa-image"></i> Change Logo</button>
+        <button onclick="openModal('editGlobalConfig')" class="bg-slate-900 text-white px-2.5 py-0.5 rounded text-xs transition hover:bg-slate-800"><i class="fa-solid fa-image"></i> Change Logo & Title</button>
         <button onclick="resetToDefaults()" class="bg-amber-700 hover:bg-amber-800 text-white px-2 py-0.5 rounded text-xs transition">Reset All</button>
         <button onclick="logoutAdmin()" class="bg-slate-900 text-white px-2.5 py-0.5 rounded-md hover:bg-slate-800 transition text-xs flex items-center gap-1">
           <i class="fa-solid fa-right-from-bracket"></i> Exit Admin
@@ -104,7 +104,7 @@
         </div>
         <div class="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700 mt-auto">
           <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium text-xs">Cancel</button>
-          <button type="submit" class="px-5 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-medium text-xs shadow-md btn-3d">Add / Save Item</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-medium text-xs shadow-md btn-3d">Save / Submit</button>
         </div>
       </form>
     </div>
@@ -121,7 +121,7 @@
           <i class="fa-solid fa-shield-halved"></i>
         </div>
         <h3 class="text-xl font-bold text-slate-900 dark:text-white">Admin Authentication</h3>
-        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Enter <strong>password</strong> to unlock edit rights</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Enter <strong>password</strong> (7655) to unlock edit rights</p>
       </div>
       <form onsubmit="handleAdminLogin(event)" class="space-y-4">
         <div>
@@ -444,7 +444,7 @@
                   ` : '<div></div>'}
                   ${appState.isAdmin ? `
                     <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs">
-                      <button onclick="openModal('editClass', '${cls.id}')" class="p-1.5 text-slate-500 hover:text-brand-500" title="Edit Class"><i class="fa-solid fa-pen"></i></button>
+                      <button onclick="openModal('editClass', '${cls.id}')" class="p-1.5 text-slate-500 hover:text-brand-500" title="Edit Class Text & Image"><i class="fa-solid fa-pen"></i></button>
                       <button onclick="deleteClass('${cls.id}')" class="p-1.5 text-slate-500 hover:text-red-500" title="Delete Class"><i class="fa-solid fa-trash"></i></button>
                     </div>
                   ` : ''}
@@ -511,8 +511,8 @@
                     ` : '<div></div>'}
                     ${appState.isAdmin ? `
                       <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs">
-                        <button onclick="openModal('editMedium', '${med.id}')" class="p-1.5 text-slate-500 hover:text-brand-500"><i class="fa-solid fa-pen"></i></button>
-                        <button onclick="deleteMedium('${med.id}')" class="p-1.5 text-slate-500 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="openModal('editMedium', '${med.id}')" class="p-1.5 text-slate-500 hover:text-brand-500" title="Edit Medium Text & Image"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="deleteMedium('${med.id}')" class="p-1.5 text-slate-500 hover:text-red-500" title="Delete Medium"><i class="fa-solid fa-trash"></i></button>
                       </div>
                     ` : ''}
                   </div>
@@ -580,8 +580,8 @@
                     ` : '<div></div>'}
                     ${appState.isAdmin ? `
                       <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs">
-                        <button onclick="openModal('editSubject', '${sbj.id}')" class="p-1.5 text-slate-500 hover:text-brand-500"><i class="fa-solid fa-pen"></i></button>
-                        <button onclick="deleteSubject('${sbj.id}')" class="p-1.5 text-slate-500 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="openModal('editSubject', '${sbj.id}')" class="p-1.5 text-slate-500 hover:text-brand-500" title="Edit Subject Text & Image"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="deleteSubject('${sbj.id}')" class="p-1.5 text-slate-500 hover:text-red-500" title="Delete Subject"><i class="fa-solid fa-trash"></i></button>
                       </div>
                     ` : ''}
                   </div>
@@ -648,8 +648,8 @@
               <div class="flex items-center gap-3 self-end md:self-center">
                 ${appState.isAdmin ? `
                   <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs">
-                    <button onclick="openModal('editChapter', '${ch.id}')" class="p-1.5 text-slate-500 hover:text-brand-500"><i class="fa-solid fa-pen"></i></button>
-                    <button onclick="deleteChapter('${ch.id}')" class="p-1.5 text-slate-500 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
+                    <button onclick="openModal('editChapter', '${ch.id}')" class="p-1.5 text-slate-500 hover:text-brand-500" title="Edit Chapter"><i class="fa-solid fa-pen"></i></button>
+                    <button onclick="deleteChapter('${ch.id}')" class="p-1.5 text-slate-500 hover:text-red-500" title="Delete Chapter"><i class="fa-solid fa-trash"></i></button>
                   </div>
                 ` : ''}
                 <button onclick="navigateTo('chapter-detail', '${curClass.id}', '${curMedium.id}', '${curSubject.id}', '${ch.id}')" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs transition shadow-sm flex items-center gap-2 btn-3d">
@@ -1258,10 +1258,11 @@
 
       switch (action) {
         case 'editGlobalConfig':
-          title.textContent = "Configure Portal Branding";
+          title.textContent = "Configure Portal Branding & Texts";
           fields.innerHTML = `
             <div><label class="block text-xs font-semibold mb-1">Portal / Brand Name</label><input type="text" id="f-brand-name" value="${appState.data.config?.brandName || ''}" required class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
-            <div><label class="block text-xs font-semibold mb-1">Logo Image URL / Path</label><input type="text" id="f-logo-url" value="${appState.data.config?.logoUrl || ''}" placeholder="e.g. logo.png or https://..." class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Logo Image URL or Local File Upload</label><input type="text" id="f-logo-url" value="${appState.data.config?.logoUrl || ''}" placeholder="e.g. logo.png or https://..." class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs mb-1" />
+            <input type="file" accept="image/*" onchange="parseLogoFile(event)" class="w-full text-xs text-slate-400" /></div>
           `;
           break;
         case 'addClass':
@@ -1269,15 +1270,17 @@
           fields.innerHTML = `
             <div><label class="block text-xs font-semibold mb-1">Class Name</label><input type="text" id="f-name" placeholder="Class 11" required class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
             <div><label class="block text-xs font-semibold mb-1">Description</label><input type="text" id="f-desc" placeholder="Higher Secondary Standard" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
-            <div><label class="block text-xs font-semibold mb-1">Class Image URL / Path (Optional)</label><input type="text" id="f-img-url" placeholder="e.g. class10.jpg" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Class Image URL or Upload Image</label><input type="text" id="f-img-url" placeholder="e.g. class10.jpg or URL" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs mb-1" />
+            <input type="file" accept="image/*" onchange="parseClassImageFile(event)" class="w-full text-xs text-slate-400" /></div>
           `;
           break;
         case 'editClass':
-          title.textContent = "Edit Class";
+          title.textContent = "Edit Class Texts & Image";
           fields.innerHTML = `
             <div><label class="block text-xs font-semibold mb-1">Class Name</label><input type="text" id="f-name" value="${curClass?.name || ''}" required class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
             <div><label class="block text-xs font-semibold mb-1">Description</label><input type="text" id="f-desc" value="${curClass?.description || ''}" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
-            <div><label class="block text-xs font-semibold mb-1">Class Image URL / Path</label><input type="text" id="f-img-url" value="${curClass?.imageUrl || ''}" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Class Image URL or Upload Image</label><input type="text" id="f-img-url" value="${curClass?.imageUrl || ''}" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs mb-1" />
+            <input type="file" accept="image/*" onchange="parseClassImageFile(event)" class="w-full text-xs text-slate-400" /></div>
           `;
           break;
         case 'addMedium':
@@ -1285,16 +1288,18 @@
           fields.innerHTML = `
             <div><label class="block text-xs font-semibold mb-1">Medium Name</label><input type="text" id="f-name" placeholder="Malayalam Medium" required class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
             <div><label class="block text-xs font-semibold mb-1">Language Code</label><input type="text" id="f-code" placeholder="MAL" required class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
-            <div><label class="block text-xs font-semibold mb-1">Medium Image URL / Path (Optional)</label><input type="text" id="f-img-url" placeholder="e.g. malayalam.jpg" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Medium Image URL or Upload Image</label><input type="text" id="f-img-url" placeholder="e.g. malayalam.jpg" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs mb-1" />
+            <input type="file" accept="image/*" onchange="parseClassImageFile(event)" class="w-full text-xs text-slate-400" /></div>
           `;
           break;
         case 'editMedium': {
           const med = curClass?.mediums?.find(m => m.id === targetId);
-          title.textContent = "Edit Medium";
+          title.textContent = "Edit Medium Texts & Image";
           fields.innerHTML = `
             <div><label class="block text-xs font-semibold mb-1">Medium Name</label><input type="text" id="f-name" value="${med?.name || ''}" required class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
             <div><label class="block text-xs font-semibold mb-1">Language Code</label><input type="text" id="f-code" value="${med?.code || ''}" required class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
-            <div><label class="block text-xs font-semibold mb-1">Medium Image URL / Path</label><input type="text" id="f-img-url" value="${med?.imageUrl || ''}" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Medium Image URL or Upload Image</label><input type="text" id="f-img-url" value="${med?.imageUrl || ''}" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs mb-1" />
+            <input type="file" accept="image/*" onchange="parseClassImageFile(event)" class="w-full text-xs text-slate-400" /></div>
           `;
           break;
         }
@@ -1304,17 +1309,19 @@
             <div><label class="block text-xs font-semibold mb-1">Subject Name</label><input type="text" id="f-name" placeholder="Chemistry" required class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
             <div><label class="block text-xs font-semibold mb-1">Subject Code</label><input type="text" id="f-code" placeholder="CHEM10" required class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
             <div><label class="block text-xs font-semibold mb-1">Description</label><input type="text" id="f-desc" placeholder="Organic & Inorganic Chemistry" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
-            <div><label class="block text-xs font-semibold mb-1">Subject Image URL / Path (Optional)</label><input type="text" id="f-img-url" placeholder="e.g. physics.jpg" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Subject Image URL or Upload Image</label><input type="text" id="f-img-url" placeholder="e.g. physics.jpg" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs mb-1" />
+            <input type="file" accept="image/*" onchange="parseClassImageFile(event)" class="w-full text-xs text-slate-400" /></div>
           `;
           break;
         case 'editSubject': {
           const sbj = curMedium?.subjects?.find(s => s.id === targetId);
-          title.textContent = "Edit Subject";
+          title.textContent = "Edit Subject Texts & Image";
           fields.innerHTML = `
             <div><label class="block text-xs font-semibold mb-1">Subject Name</label><input type="text" id="f-name" value="${sbj?.name || ''}" required class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
             <div><label class="block text-xs font-semibold mb-1">Subject Code</label><input type="text" id="f-code" value="${sbj?.code || ''}" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
             <div><label class="block text-xs font-semibold mb-1">Description</label><input type="text" id="f-desc" value="${sbj?.description || ''}" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
-            <div><label class="block text-xs font-semibold mb-1">Subject Image URL / Path</label><input type="text" id="f-img-url" value="${sbj?.imageUrl || ''}" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Subject Image URL or Upload Image</label><input type="text" id="f-img-url" value="${sbj?.imageUrl || ''}" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs mb-1" />
+            <input type="file" accept="image/*" onchange="parseClassImageFile(event)" class="w-full text-xs text-slate-400" /></div>
           `;
           break;
         }
@@ -1417,6 +1424,28 @@
 
     let loadedFileBlob = null;
     let loadedFileType = null;
+
+    function parseLogoFile(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          document.getElementById('f-logo-url').value = evt.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function parseClassImageFile(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          document.getElementById('f-img-url').value = evt.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
 
     function parseLocalFile(e, allowed) {
       const file = e.target.files[0];
@@ -1690,9 +1719,14 @@
       } else {
         container.innerHTML = `<img src="${url}" class="max-w-full max-h-full object-contain" />`;
       }
+      box.classList.add('flex');
       box.classList.remove('hidden');
     }
-    function closeLightbox() { document.getElementById('file-lightbox').classList.add('hidden'); }
+    function closeLightbox() { 
+      const box = document.getElementById('file-lightbox');
+      box.classList.add('hidden');
+      box.classList.remove('flex');
+    }
 
     window.onload = function() {
       loadState();
