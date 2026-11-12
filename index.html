@@ -41,10 +41,10 @@
     <div id="admin-bar" class="hidden bg-amber-500 text-slate-950 font-semibold px-4 py-1.5 text-xs sm:text-sm flex justify-between items-center shadow-inner">
       <div class="flex items-center gap-2">
         <i class="fa-solid fa-user-shield text-base"></i>
-        <span><strong>Admin Mode Active:</strong> Edit texts, change logos, manage class/medium/subject/chapter images & items.</span>
+        <span><strong>Admin Mode Active:</strong> You can edit every text, title, description, and image across the entire website.</span>
       </div>
       <div class="flex items-center gap-2">
-        <button onclick="openModal('editGlobalConfig')" class="bg-slate-900 text-white px-2.5 py-0.5 rounded text-xs transition hover:bg-slate-800"><i class="fa-solid fa-image"></i> Change Logo & Title</button>
+        <button onclick="openModal('editGlobalConfig')" class="bg-slate-900 text-white px-2.5 py-0.5 rounded text-xs transition hover:bg-slate-800"><i class="fa-solid fa-pen-to-square"></i> Edit Global Texts & Logo</button>
         <button onclick="resetToDefaults()" class="bg-amber-700 hover:bg-amber-800 text-white px-2 py-0.5 rounded text-xs transition">Reset All</button>
         <button onclick="logoutAdmin()" class="bg-slate-900 text-white px-2.5 py-0.5 rounded-md hover:bg-slate-800 transition text-xs flex items-center gap-1">
           <i class="fa-solid fa-right-from-bracket"></i> Exit Admin
@@ -121,7 +121,7 @@
           <i class="fa-solid fa-shield-halved"></i>
         </div>
         <h3 class="text-xl font-bold text-slate-900 dark:text-white">Admin Authentication</h3>
-        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Enter <strong>password</strong> (7655) to unlock edit rights</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Enter <strong>password</strong> (7655) to unlock universal text editing</p>
       </div>
       <form onsubmit="handleAdminLogin(event)" class="space-y-4">
         <div>
@@ -158,11 +158,29 @@
       datatable: { accept: ".csv", label: "Data Table (.CSV)" }
     };
 
-    // --- INITIAL SEED DATA WITH CUSTOM IMAGES & TEXTS ---
+    // --- INITIAL SEED DATA WITH UNIVERSAL CUSTOMIZABLE STRINGS ---
     const INITIAL_DATA = {
       config: {
         brandName: "New GURUKULAM",
-        logoUrl: ""
+        logoUrl: "",
+        uiTexts: {
+          classesTitle: "Academic Classes",
+          classesSubtitle: "Select a class level to proceed to language medium selection.",
+          selectMediumBtn: "Select Medium",
+          backToClassesBtn: "Back to Classes",
+          selectSubjectBtn: "View Subjects",
+          backToMediumsBtn: "Back to Mediums",
+          viewChaptersBtn: "View Chapters",
+          backToSubjectsBtn: "Back to Subjects",
+          openChapterHubBtn: "Open Chapter Hub",
+          quizCompletedTitle: "Quiz Completed",
+          retryQuizBtn: "Retry Quiz",
+          submitQuizBtn: "Submit Assessment",
+          searchPlaceholder: "Search rows...",
+          aiChatTitle: "Chapter Context AI Tutor",
+          aiChatSubtitle: "Context Index: Reports, Flashcards, Quiz & Data Tables",
+          aiChatPlaceholder: "Ask a question about this chapter's materials..."
+        }
       },
       classes: [
         {
@@ -198,14 +216,14 @@
                           { id: "vid-1", title: "Spherical Mirrors & Ray Diagrams", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4", type: "video/mp4", content: "Ray tracing tutorial for concave and convex mirrors." }
                         ],
                         notes: [
-                          { id: "not-1", title: "Comprehensive Optics Notes", url: "optics_notes.pdf", content: "### Optics Standard Formulas\n1. Mirror Formula: 1/f = 1/v + 1/u\n2. Magnification: m = -v/u\n3. Snell's Law: n1 * sin(i) = n2 * sin(r)" }
+                          { id: "not-1", title: "Comprehensive Optics Notes", url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", content: "### Optics Standard Formulas\n1. Mirror Formula: 1/f = 1/v + 1/u\n2. Magnification: m = -v/u\n3. Snell's Law: n1 * sin(i) = n2 * sin(r)" }
                         ],
                         flashcards: [
                           { id: "fc-1", q: "What is the unit of power of a lens?", a: "Diopter (D)" },
                           { id: "fc-2", q: "What is the mirror formula?", a: "1/f = 1/v + 1/u" }
                         ],
                         slides: [
-                          { id: "sld-1", title: "Optics Slide Deck Part 1", url: "optics_deck.pdf", type: "pdf", content: "Presentation deck covering mirror ray diagrams." }
+                          { id: "sld-1", title: "Optics Slide Deck Part 1", url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", type: "pdf", content: "Presentation deck covering mirror ray diagrams." }
                         ],
                         mindmap: {
                           name: "Optics & Light",
@@ -259,7 +277,8 @@
       if (saved) {
         try { appState.data = JSON.parse(saved); } catch(e) { console.error(e); }
       }
-      if (!appState.data.config) appState.data.config = { brandName: "New GURUKULAM", logoUrl: "" };
+      if (!appState.data.config) appState.data.config = { brandName: "New GURUKULAM", logoUrl: "", uiTexts: INITIAL_DATA.config.uiTexts };
+      if (!appState.data.config.uiTexts) appState.data.config.uiTexts = INITIAL_DATA.config.uiTexts;
       if (localStorage.getItem('newgurukulam_admin') === 'true') appState.isAdmin = true;
       appState.theme = localStorage.getItem('newgurukulam_theme') || 'dark';
       applyTheme();
@@ -271,7 +290,7 @@
     }
 
     function resetToDefaults() {
-      if (confirm("Reset all classes, subjects, branding and uploaded resources to defaults?")) {
+      if (confirm("Reset all classes, subjects, branding, and all customized texts to defaults?")) {
         appState.data = INITIAL_DATA;
         saveData();
         updateGlobalBranding();
@@ -411,11 +430,12 @@
 
     // 1. CLASS VIEW
     function renderClassesView(container) {
+      const ui = appState.data.config.uiTexts;
       let html = `
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
-            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Academic Classes</h1>
-            <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mt-0.5">Select a class level to proceed to language medium selection.</p>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">${ui.classesTitle}</h1>
+            <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mt-0.5">${ui.classesSubtitle}</p>
           </div>
           ${appState.isAdmin ? `
             <button onclick="openModal('addClass')" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold text-xs shadow-md transition flex items-center gap-2 btn-3d">
@@ -455,7 +475,7 @@
               <div class="pt-4 mt-6 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between">
                 <span class="text-xs font-semibold text-slate-400">${cls.mediums?.length || 0} Mediums</span>
                 <button onclick="navigateTo('mediums', '${cls.id}')" class="px-4 py-2 rounded-xl bg-brand-50 dark:bg-brand-900/40 text-brand-600 dark:text-brand-300 font-semibold text-xs hover:bg-brand-600 hover:text-white transition flex items-center gap-1.5 btn-3d">
-                  Select Medium <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                  ${ui.selectMediumBtn} <i class="fa-solid fa-arrow-right text-[10px]"></i>
                 </button>
               </div>
             </div>
@@ -471,12 +491,13 @@
     function renderMediumsView(container) {
       const curClass = appState.data.classes.find(c => c.id === appState.selectedClassId);
       if (!curClass) return navigateTo('classes');
+      const ui = appState.data.config.uiTexts;
 
       let html = `
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
             <button onclick="navigateTo('classes')" class="text-xs font-bold text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1 mb-1">
-              <i class="fa-solid fa-arrow-left"></i> Back to Classes
+              <i class="fa-solid fa-arrow-left"></i> ${ui.backToClassesBtn}
             </button>
             <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">${curClass.name} - Select Medium</h1>
             <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm">Choose instruction language for ${curClass.name}.</p>
@@ -522,7 +543,7 @@
                 <div class="pt-4 mt-6 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between">
                   <span class="text-xs font-semibold text-slate-400">${med.subjects?.length || 0} Subjects</span>
                   <button onclick="navigateTo('subjects', '${curClass.id}', '${med.id}')" class="px-4 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300 font-semibold text-xs hover:bg-indigo-600 hover:text-white transition flex items-center gap-1.5 btn-3d">
-                    View Subjects <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    ${ui.selectSubjectBtn} <i class="fa-solid fa-arrow-right text-[10px]"></i>
                   </button>
                 </div>
               </div>
@@ -540,12 +561,13 @@
       const curClass = appState.data.classes.find(c => c.id === appState.selectedClassId);
       const curMedium = curClass?.mediums?.find(m => m.id === appState.selectedMediumId);
       if (!curClass || !curMedium) return navigateTo('classes');
+      const ui = appState.data.config.uiTexts;
 
       let html = `
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
             <button onclick="navigateTo('mediums', '${curClass.id}')" class="text-xs font-bold text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1 mb-1">
-              <i class="fa-solid fa-arrow-left"></i> Back to ${curClass.name} Mediums
+              <i class="fa-solid fa-arrow-left"></i> ${ui.backToMediumsBtn}
             </button>
             <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">${curMedium.name} Subjects</h1>
             <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm">Course subjects for ${curClass.name}.</p>
@@ -592,7 +614,7 @@
                 <div class="pt-4 mt-6 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between">
                   <span class="text-xs font-semibold text-slate-400">${sbj.chapters?.length || 0} Chapters</span>
                   <button onclick="navigateTo('chapters', '${curClass.id}', '${curMedium.id}', '${sbj.id}')" class="px-4 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-300 font-semibold text-xs hover:bg-emerald-600 hover:text-white transition flex items-center gap-1.5 btn-3d">
-                    View Chapters <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    ${ui.viewChaptersBtn} <i class="fa-solid fa-arrow-right text-[10px]"></i>
                   </button>
                 </div>
               </div>
@@ -611,12 +633,13 @@
       const curMedium = curClass?.mediums?.find(m => m.id === appState.selectedMediumId);
       const curSubject = curMedium?.subjects?.find(s => s.id === appState.selectedSubjectId);
       if (!curClass || !curMedium || !curSubject) return navigateTo('classes');
+      const ui = appState.data.config.uiTexts;
 
       let html = `
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
             <button onclick="navigateTo('subjects', '${curClass.id}', '${curMedium.id}')" class="text-xs font-bold text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1 mb-1">
-              <i class="fa-solid fa-arrow-left"></i> Back to ${curMedium.name} Subjects
+              <i class="fa-solid fa-arrow-left"></i> ${ui.backToSubjectsBtn}
             </button>
             <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">${curSubject.name} Chapters</h1>
             <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm">Select a chapter to launch all 10 dedicated learning modules.</p>
@@ -653,7 +676,7 @@
                   </div>
                 ` : ''}
                 <button onclick="navigateTo('chapter-detail', '${curClass.id}', '${curMedium.id}', '${curSubject.id}', '${ch.id}')" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs transition shadow-sm flex items-center gap-2 btn-3d">
-                  Open Chapter Hub <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                  ${ui.openChapterHubBtn} <i class="fa-solid fa-arrow-right text-[10px]"></i>
                 </button>
               </div>
             </div>
@@ -689,11 +712,12 @@
       ];
 
       const currentTabObj = MODULES.find(m => m.id === appState.selectedTab);
+      const ui = appState.data.config.uiTexts;
 
       let html = `
         <div class="mb-6">
           <button onclick="navigateTo('chapters', '${curClass.id}', '${curMedium.id}', '${curSubject.id}')" class="text-xs font-bold text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1 mb-2">
-            <i class="fa-solid fa-arrow-left"></i> Back to ${curSubject.name} Chapters
+            <i class="fa-solid fa-arrow-left"></i> ${ui.backToSubjectsBtn}
           </button>
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
@@ -742,6 +766,7 @@
 
     // --- MODULE DISPLAY SWITCHER ---
     function renderActiveModule(resources, tab) {
+      const ui = appState.data.config.uiTexts;
       switch (tab) {
         case 'audio': {
           const list = getResourceList(resources, 'audio');
@@ -1062,6 +1087,7 @@
     let userAnswers = {};
     let quizSubmitted = false;
     function renderQuizEngine(quiz) {
+      const ui = appState.data.config.uiTexts;
       if (quizSubmitted) {
         let score = 0;
         quiz.forEach((q, i) => { if (userAnswers[i] === q.answer) score++; });
@@ -1071,10 +1097,10 @@
               ${score}/${quiz.length}
             </div>
             <div>
-              <h3 class="text-2xl font-bold text-slate-900 dark:text-white">Quiz Completed</h3>
+              <h3 class="text-2xl font-bold text-slate-900 dark:text-white">${ui.quizCompletedTitle}</h3>
               <p class="text-xs text-slate-400 mt-1">Score: ${Math.round((score/quiz.length)*100)}%</p>
             </div>
-            <button onclick="quizSubmitted=false; userAnswers={}; renderChapterDetailView(document.getElementById('app-content'));" class="px-6 py-2.5 rounded-xl bg-brand-600 text-white font-semibold text-xs shadow-md btn-3d">Retry Quiz</button>
+            <button onclick="quizSubmitted=false; userAnswers={}; renderChapterDetailView(document.getElementById('app-content'));" class="px-6 py-2.5 rounded-xl bg-brand-600 text-white font-semibold text-xs shadow-md btn-3d">${ui.retryQuizBtn}</button>
           </div>
         `;
       }
@@ -1103,7 +1129,7 @@
             `).join('')}
           </div>
           <button onclick="quizSubmitted=true; renderChapterDetailView(document.getElementById('app-content'));" class="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs shadow-md btn-3d" ${Object.keys(userAnswers).length < quiz.length ? 'disabled opacity-50' : ''}>
-            Submit Assessment
+            ${ui.submitQuizBtn}
           </button>
         </div>
       `;
@@ -1112,6 +1138,7 @@
     // DATA TABLE COMPONENT
     let tableSearchQuery = "";
     function renderDataTableModule(dt) {
+      const ui = appState.data.config.uiTexts;
       if (!dt || !dt.columns) return emptyResourceState('Data Table (.CSV / Admin Grid)', 'fa-table');
       const filtered = dt.rows.filter(row => row.some(cell => String(cell).toLowerCase().includes(tableSearchQuery.toLowerCase())));
       return `
@@ -1119,7 +1146,7 @@
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <h3 class="text-lg font-bold text-slate-900 dark:text-white">Reference Data Table</h3>
             <div class="flex items-center gap-2 w-full sm:w-auto">
-              <input type="text" placeholder="Search rows..." value="${tableSearchQuery}" oninput="tableSearchQuery = this.value; renderChapterDetailView(document.getElementById('app-content'));" class="px-3.5 py-1.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs outline-none focus:ring-2 focus:ring-brand-500 w-full sm:w-64" />
+              <input type="text" placeholder="${ui.searchPlaceholder}" value="${tableSearchQuery}" oninput="tableSearchQuery = this.value; renderChapterDetailView(document.getElementById('app-content'));" class="px-3.5 py-1.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs outline-none focus:ring-2 focus:ring-brand-500 w-full sm:w-64" />
               ${appState.isAdmin ? `<button onclick="deleteResourceItem('datatable', '${dt.id}')" class="px-3 py-1.5 rounded-xl bg-red-500 text-white text-xs font-bold hover:bg-red-600 btn-3d"><i class="fa-solid fa-trash"></i></button>` : ''}
             </div>
           </div>
@@ -1149,14 +1176,15 @@
     ];
 
     function renderContextAwareAIChatbot(resources) {
+      const ui = appState.data.config.uiTexts;
       return `
         <div class="max-w-2xl mx-auto flex flex-col h-[420px]">
           <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700 mb-3">
             <div class="flex items-center gap-2">
               <i class="fa-solid fa-robot text-brand-500 text-xl"></i>
               <div>
-                <h3 class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">Chapter Context AI Tutor</h3>
-                <p class="text-[10px] text-slate-400">Context Index: Reports, Flashcards, Quiz & Data Tables</p>
+                <h3 class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">${ui.aiChatTitle}</h3>
+                <p class="text-[10px] text-slate-400">${ui.aiChatSubtitle}</p>
               </div>
             </div>
             <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-300 font-mono">Active Index</span>
@@ -1173,7 +1201,7 @@
           </div>
 
           <form onsubmit="handleAIChat(event, ${JSON.stringify(resources).replace(/"/g, '&quot;')})" class="flex gap-2 pt-3 border-t border-slate-200 dark:border-slate-700 mt-2">
-            <input type="text" id="ai-chat-input" placeholder="Ask a question about this chapter's materials..." required class="flex-grow px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500" />
+            <input type="text" id="ai-chat-input" placeholder="${ui.aiChatPlaceholder}" required class="flex-grow px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500" />
             <button type="submit" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold btn-3d"><i class="fa-solid fa-paper-plane"></i></button>
           </form>
         </div>
@@ -1255,14 +1283,34 @@
       const curMedium = curClass?.mediums?.find(m => m.id === appState.selectedMediumId);
       const curSubject = curMedium?.subjects?.find(s => s.id === appState.selectedSubjectId);
       const curChapter = curSubject?.chapters?.find(ch => ch.id === appState.selectedChapterId);
+      const ui = appState.data.config.uiTexts;
 
       switch (action) {
         case 'editGlobalConfig':
-          title.textContent = "Configure Portal Branding & Texts";
+          title.textContent = "Edit Portal Branding & Every Static Text";
           fields.innerHTML = `
+            <div class="border-b border-slate-200 dark:border-slate-700 pb-3 mb-2 font-bold text-brand-500 text-xs uppercase tracking-wider">Branding Settings</div>
             <div><label class="block text-xs font-semibold mb-1">Portal / Brand Name</label><input type="text" id="f-brand-name" value="${appState.data.config?.brandName || ''}" required class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
             <div><label class="block text-xs font-semibold mb-1">Logo Image URL or Local File Upload</label><input type="text" id="f-logo-url" value="${appState.data.config?.logoUrl || ''}" placeholder="e.g. logo.png or https://..." class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs mb-1" />
             <input type="file" accept="image/*" onchange="parseLogoFile(event)" class="w-full text-xs text-slate-400" /></div>
+
+            <div class="border-b border-slate-200 dark:border-slate-700 pt-3 pb-3 mb-2 font-bold text-brand-500 text-xs uppercase tracking-wider">Global UI & Button Texts</div>
+            <div><label class="block text-xs font-semibold mb-1">Classes View Title</label><input type="text" id="f-ui-classesTitle" value="${ui.classesTitle}" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Classes Subtitle</label><input type="text" id="f-ui-classesSubtitle" value="${ui.classesSubtitle}" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Select Medium Button Text</label><input type="text" id="f-ui-selectMediumBtn" value="${ui.selectMediumBtn}" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Back to Classes Button Text</label><input type="text" id="f-ui-backToClassesBtn" value="${ui.backToClassesBtn}" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">View Subjects Button Text</label><input type="text" id="f-ui-selectSubjectBtn" value="${ui.selectSubjectBtn}" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Back to Mediums Button Text</label><input type="text" id="f-ui-backToMediumsBtn" value="${ui.backToMediumsBtn}" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">View Chapters Button Text</label><input type="text" id="f-ui-viewChaptersBtn" value="${ui.viewChaptersBtn}" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Back to Subjects Button Text</label><input type="text" id="f-ui-backToSubjectsBtn" value="${ui.backToSubjectsBtn}" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Open Chapter Hub Button Text</label><input type="text" id="f-ui-openChapterHubBtn" value="${ui.openChapterHubBtn}" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Quiz Completed Title Text</label><input type="text" id="f-ui-quizCompletedTitle" value="${ui.quizCompletedTitle}" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Retry Quiz Button Text</label><input type="text" id="f-ui-retryQuizBtn" value="${ui.retryQuizBtn}" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Submit Quiz Button Text</label><input type="text" id="f-ui-submitQuizBtn" value="${ui.submitQuizBtn}" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">Data Table Search Placeholder</label><input type="text" id="f-ui-searchPlaceholder" value="${ui.searchPlaceholder}" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">AI Chatbot Title Text</label><input type="text" id="f-ui-aiChatTitle" value="${ui.aiChatTitle}" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">AI Chatbot Subtitle Text</label><input type="text" id="f-ui-aiChatSubtitle" value="${ui.aiChatSubtitle}" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
+            <div><label class="block text-xs font-semibold mb-1">AI Chatbot Input Placeholder</label><input type="text" id="f-ui-aiChatPlaceholder" value="${ui.aiChatPlaceholder}" class="w-full px-3 py-2 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs" /></div>
           `;
           break;
         case 'addClass':
@@ -1505,6 +1553,26 @@
           case 'editGlobalConfig':
             appState.data.config.brandName = document.getElementById('f-brand-name').value;
             appState.data.config.logoUrl = document.getElementById('f-logo-url').value;
+            
+            // Save all custom UI static texts
+            if (!appState.data.config.uiTexts) appState.data.config.uiTexts = {};
+            appState.data.config.uiTexts.classesTitle = document.getElementById('f-ui-classesTitle').value;
+            appState.data.config.uiTexts.classesSubtitle = document.getElementById('f-ui-classesSubtitle').value;
+            appState.data.config.uiTexts.selectMediumBtn = document.getElementById('f-ui-selectMediumBtn').value;
+            appState.data.config.uiTexts.backToClassesBtn = document.getElementById('f-ui-backToClassesBtn').value;
+            appState.data.config.uiTexts.selectSubjectBtn = document.getElementById('f-ui-selectSubjectBtn').value;
+            appState.data.config.uiTexts.backToMediumsBtn = document.getElementById('f-ui-backToMediumsBtn').value;
+            appState.data.config.uiTexts.viewChaptersBtn = document.getElementById('f-ui-viewChaptersBtn').value;
+            appState.data.config.uiTexts.backToSubjectsBtn = document.getElementById('f-ui-backToSubjectsBtn').value;
+            appState.data.config.uiTexts.openChapterHubBtn = document.getElementById('f-ui-openChapterHubBtn').value;
+            appState.data.config.uiTexts.quizCompletedTitle = document.getElementById('f-ui-quizCompletedTitle').value;
+            appState.data.config.uiTexts.retryQuizBtn = document.getElementById('f-ui-retryQuizBtn').value;
+            appState.data.config.uiTexts.submitQuizBtn = document.getElementById('f-ui-submitQuizBtn').value;
+            appState.data.config.uiTexts.searchPlaceholder = document.getElementById('f-ui-searchPlaceholder').value;
+            appState.data.config.uiTexts.aiChatTitle = document.getElementById('f-ui-aiChatTitle').value;
+            appState.data.config.uiTexts.aiChatSubtitle = document.getElementById('f-ui-aiChatSubtitle').value;
+            appState.data.config.uiTexts.aiChatPlaceholder = document.getElementById('f-ui-aiChatPlaceholder').value;
+
             updateGlobalBranding();
             break;
           case 'addClass':
@@ -1736,4 +1804,4 @@
     };
   </script>
 </body>
-</html>
+</html> 
