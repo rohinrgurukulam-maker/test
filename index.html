@@ -53,17 +53,19 @@
     </div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16">
-        <div class="flex items-center gap-3">
-          <div onclick="navigateTo('classes')" class="flex items-center gap-2 cursor-pointer group">
-            <div id="header-logo-container" class="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center text-white font-bold text-xl shadow-md group-hover:scale-105 transition overflow-hidden">
-              <i id="header-logo-icon" class="fa-solid fa-graduation-cap"></i>
-              <img id="header-logo-img" src="" class="w-full h-full object-cover hidden" alt="Logo">
+      <div class="flex items-center justify-between min-h-[4.5rem] py-1.5">
+        <div class="flex items-center gap-4">
+          <div onclick="navigateTo('classes')" class="flex items-center gap-3 cursor-pointer group">
+            <div id="header-logo-container" class="flex items-center justify-center bg-transparent shrink-0">
+              <div id="header-logo-icon-wrap" class="w-11 h-11 rounded-xl bg-brand-600 flex items-center justify-center text-white font-bold text-xl shadow-md group-hover:scale-105 transition">
+                <i id="header-logo-icon" class="fa-solid fa-graduation-cap"></i>
+              </div>
+              <img id="header-logo-img" src="" class="h-14 sm:h-16 w-auto max-w-[260px] object-contain bg-transparent hidden" alt="Logo">
             </div>
-            <span id="app-brand-title" class="text-xl font-bold bg-gradient-to-r from-brand-600 to-indigo-500 bg-clip-text text-transparent">New GURUKULAM</span>
+            <span id="app-brand-title" class="text-sm sm:text-base font-bold bg-gradient-to-r from-brand-600 to-indigo-500 bg-clip-text text-transparent leading-tight">New GURUKULAM</span>
           </div>
 
-          <nav id="breadcrumb" class="hidden md:flex items-center gap-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium ml-4">
+          <nav id="breadcrumb" class="hidden md:flex items-center gap-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium ml-2">
             <!-- Dynamic Breadcrumb Navigation -->
           </nav>
         </div>
@@ -304,15 +306,15 @@
       if (brandSpan) brandSpan.textContent = appState.data.config?.brandName || "New GURUKULAM";
 
       const logoImg = document.getElementById('header-logo-img');
-      const logoIcon = document.getElementById('header-logo-icon');
+      const logoIconWrap = document.getElementById('header-logo-icon-wrap');
       const logoUrl = appState.data.config?.logoUrl;
       if (logoUrl) {
         logoImg.src = logoUrl;
         logoImg.classList.remove('hidden');
-        logoIcon.classList.add('hidden');
+        logoIconWrap.classList.add('hidden');
       } else {
         logoImg.classList.add('hidden');
-        logoIcon.classList.remove('hidden');
+        logoIconWrap.classList.remove('hidden');
       }
     }
 
@@ -1804,4 +1806,4 @@
     };
   </script>
 </body>
-</html> 
+</html>
