@@ -45,7 +45,7 @@
       </div>
       <div class="flex items-center gap-2">
         <button onclick="openModal('editGlobalConfig')" class="bg-slate-900 text-white px-2.5 py-0.5 rounded text-xs transition hover:bg-slate-800"><i class="fa-solid fa-pen-to-square"></i> Edit Global Texts & Logo</button>
-        <button onclick="resetToDefaults()" class="bg-amber-700 hover:bg-amber-800 text-white px-2 py-0.5 rounded text-xs transition">Reset All</button>
+        <button onclick="resetToDefaults()" class="bg-amber-700 hover:bg-amber-800 text-white px-2.5 py-0.5 rounded text-xs transition">Reset All</button>
         <button onclick="logoutAdmin()" class="bg-slate-900 text-white px-2.5 py-0.5 rounded-md hover:bg-slate-800 transition text-xs flex items-center gap-1">
           <i class="fa-solid fa-right-from-bracket"></i> Exit Admin
         </button>
@@ -179,9 +179,9 @@
           retryQuizBtn: "Retry Quiz",
           submitQuizBtn: "Submit Assessment",
           searchPlaceholder: "Search rows...",
-          aiChatTitle: "Chapter Context AI Tutor",
-          aiChatSubtitle: "Context Index: Reports, Flashcards, Quiz & Data Tables",
-          aiChatPlaceholder: "Ask a question about this chapter's materials..."
+          aiChatTitle: "Chapter Syllabus AI Tutor",
+          aiChatSubtitle: "Ask anything about this chapter's concepts, formulas, and topics",
+          aiChatPlaceholder: "Ask your tutor a question about this chapter..."
         }
       },
       classes: [
@@ -387,7 +387,12 @@
       if (classId !== null) appState.selectedClassId = classId;
       if (mediumId !== null) appState.selectedMediumId = mediumId;
       if (subjectId !== null) appState.selectedSubjectId = subjectId;
-      if (chapterId !== null) appState.selectedChapterId = chapterId;
+      if (chapterId !== null) {
+        if (appState.selectedChapterId !== chapterId) {
+          chatHistories = {};
+        }
+        appState.selectedChapterId = chapterId;
+      }
       renderBreadcrumb();
       renderView();
     }
@@ -710,7 +715,7 @@
         { id: 'quiz', label: 'Quiz', icon: 'fa-circle-question', format: '.CSV' },
         { id: 'infographic', label: 'Infographic', icon: 'fa-image', format: '.JPG, .PNG, .PDF' },
         { id: 'datatable', label: 'Data Table', icon: 'fa-table', format: '.CSV / Admin Grid' },
-        { id: 'chatbot', label: 'AI Assistant', icon: 'fa-robot', format: 'File Context AI' }
+        { id: 'chatbot', label: 'AI Tutor', icon: 'fa-robot', format: 'Syllabus AI' }
       ];
 
       const currentTabObj = MODULES.find(m => m.id === appState.selectedTab);
@@ -729,7 +734,7 @@
               </div>
               <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight mt-1">${curChapter.name}</h1>
             </div>
-            ${appState.isAdmin ? `
+            ${appState.isAdmin && appState.selectedTab !== 'chatbot' ? `
               <button onclick="openModal('uploadResource', '${appState.selectedTab}')" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs shadow-md transition flex items-center gap-2 btn-3d">
                 <i class="fa-solid fa-cloud-arrow-up"></i> Add File / Item to ${currentTabObj.label}
               </button>
@@ -748,11 +753,13 @@
 
         <!-- Dedicated Section Content Area -->
         <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/60 shadow-sm min-h-[420px]">
-          ${renderActiveModule(curChapter.resources, appState.selectedTab)}
+          ${renderActiveModule(curChapter, appState.selectedTab)}
         </div>
       `;
 
       container.innerHTML = html;
+      const chatBox = document.getElementById('chat-box');
+      if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
     }
 
     function switchTab(tabId) {
@@ -767,7 +774,8 @@
     }
 
     // --- MODULE DISPLAY SWITCHER ---
-    function renderActiveModule(resources, tab) {
+    function renderActiveModule(chapter, tab) {
+      const resources = chapter.resources || {};
       const ui = appState.data.config.uiTexts;
       switch (tab) {
         case 'audio': {
@@ -972,7 +980,7 @@
           return renderDataTableModule(list[0]);
         }
         case 'chatbot': {
-          return renderContextAwareAIChatbot(resources);
+          return renderContextAwareAIChatbot(chapter);
         }
       }
     }
@@ -1172,97 +1180,277 @@
       `;
     }
 
-    // CONTEXT-AWARE AI CHATBOT
-    let chatMessages = [
-      { sender: 'ai', text: 'Hello! I am your AI Assistant. I have indexed all uploaded reports, notes, flashcards, quiz questions, and data tables for this chapter. How can I help you today?' }
-    ];
+    // SYLLABUS AI TUTOR CHATBOT
+    let chatHistories = {};
 
-    function renderContextAwareAIChatbot(resources) {
+    function getChatHistory(chapter) {
+      if (!chatHistories[chapter.id]) {
+        chatHistories[chapter.id] = [
+          {
+            sender: 'ai',
+            text: `Hi! I'm your AI Tutor for **${chapter.name}**. Ask me any question about the concepts, formulas, definitions, or problems in this chapter!`
+          }
+        ];
+      }
+      return chatHistories[chapter.id];
+    }
+
+    function formatChatText(text) {
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/\n/g, '<br>');
+    }
+
+    function renderContextAwareAIChatbot(chapter) {
       const ui = appState.data.config.uiTexts;
+      const messages = getChatHistory(chapter);
       return `
-        <div class="max-w-2xl mx-auto flex flex-col h-[420px]">
+        <div class="max-w-2xl mx-auto flex flex-col h-[440px]">
           <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700 mb-3">
-            <div class="flex items-center gap-2">
-              <i class="fa-solid fa-robot text-brand-500 text-xl"></i>
+            <div class="flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-xl bg-brand-500/15 text-brand-500 flex items-center justify-center text-lg">
+                <i class="fa-solid fa-robot"></i>
+              </div>
               <div>
                 <h3 class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">${ui.aiChatTitle}</h3>
                 <p class="text-[10px] text-slate-400">${ui.aiChatSubtitle}</p>
               </div>
             </div>
-            <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-300 font-mono">Active Index</span>
+            <button onclick="chatHistories['${chapter.id}'] = null; renderChapterDetailView(document.getElementById('app-content'));" class="text-[11px] px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition" title="Clear Chat">
+              <i class="fa-solid fa-rotate-right"></i> New Chat
+            </button>
           </div>
 
           <div id="chat-box" class="flex-grow overflow-y-auto space-y-3 pr-2">
-            ${chatMessages.map(m => `
+            ${messages.map(m => `
               <div class="flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'}">
-                <div class="max-w-[85%] rounded-2xl p-3 text-xs ${m.sender === 'user' ? 'bg-brand-600 text-white rounded-br-none' : 'bg-slate-100 dark:bg-slate-700/80 text-slate-800 dark:text-slate-200 rounded-bl-none'}">
-                  ${m.text}
+                <div class="max-w-[85%] rounded-2xl px-4 py-2.5 text-xs sm:text-sm leading-relaxed shadow-sm ${m.sender === 'user' ? 'bg-brand-600 text-white rounded-br-none' : 'bg-slate-100 dark:bg-slate-700/80 text-slate-800 dark:text-slate-100 rounded-bl-none'}">
+                  ${formatChatText(m.text)}
                 </div>
               </div>
             `).join('')}
           </div>
 
-          <form onsubmit="handleAIChat(event, ${JSON.stringify(resources).replace(/"/g, '&quot;')})" class="flex gap-2 pt-3 border-t border-slate-200 dark:border-slate-700 mt-2">
-            <input type="text" id="ai-chat-input" placeholder="${ui.aiChatPlaceholder}" required class="flex-grow px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500" />
-            <button type="submit" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold btn-3d"><i class="fa-solid fa-paper-plane"></i></button>
+          <form onsubmit="handleAIChat(event)" class="flex gap-2 pt-3 border-t border-slate-200 dark:border-slate-700 mt-3">
+            <input type="text" id="ai-chat-input" placeholder="${ui.aiChatPlaceholder}" required autocomplete="off" class="flex-grow px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs sm:text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500" />
+            <button type="submit" class="px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold btn-3d"><i class="fa-solid fa-paper-plane"></i></button>
           </form>
         </div>
       `;
     }
 
-    function handleAIChat(e, resources) {
+    function handleAIChat(e) {
       e.preventDefault();
       const input = document.getElementById('ai-chat-input');
       const query = input.value.trim();
       if (!query) return;
 
-      chatMessages.push({ sender: 'user', text: query });
+      const curClass = appState.data.classes.find(c => c.id === appState.selectedClassId);
+      const curMedium = curClass?.mediums?.find(m => m.id === appState.selectedMediumId);
+      const curSubject = curMedium?.subjects?.find(s => s.id === appState.selectedSubjectId);
+      const curChapter = curSubject?.chapters?.find(ch => ch.id === appState.selectedChapterId);
+      if (!curChapter) return;
+
+      const messages = getChatHistory(curChapter);
+      messages.push({ sender: 'user', text: query });
       input.value = '';
       renderChapterDetailView(document.getElementById('app-content'));
 
-      let responseText = extractContextResponse(query, resources);
+      const responseText = synthesizeTutorResponse(query, curChapter, curSubject);
 
       setTimeout(() => {
-        chatMessages.push({ sender: 'ai', text: responseText });
+        messages.push({ sender: 'ai', text: responseText });
         renderChapterDetailView(document.getElementById('app-content'));
-      }, 400);
+      }, 350);
     }
 
-    function extractContextResponse(query, resources) {
-      const qLower = query.toLowerCase();
+    function tokenize(text) {
+      const stopWords = new Set(['what', 'is', 'the', 'a', 'an', 'of', 'in', 'to', 'for', 'and', 'or', 'how', 'why', 'when', 'where', 'which', 'who', 'can', 'you', 'explain', 'tell', 'me', 'about', 'define', 'does', 'do', 'are', 'with', 'on', 'at', 'by', 'from', 'it', 'its', 'this', 'that', 'give', 'example']);
+      return String(text || '')
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, ' ')
+        .split(/\s+/)
+        .filter(w => w.length > 1 && !stopWords.has(w));
+    }
 
-      const notesList = getResourceList(resources, 'notes');
-      for (let note of notesList) {
-        if (note.content && (qLower.includes('formula') || qLower.includes('law') || qLower.includes('mirror') || qLower.includes('snell'))) {
-          return `Extracted from Chapter Reports & Notes:\n\n` + note.content;
+    function computeMatchScore(queryTokens, targetText) {
+      if (!targetText || queryTokens.length === 0) return 0;
+      const targetLower = String(targetText).toLowerCase();
+      const targetTokens = new Set(tokenize(targetText));
+      let hits = 0;
+      for (const qt of queryTokens) {
+        if (targetTokens.has(qt)) {
+          hits += 2;
+        } else if (qt.length > 3 && targetLower.includes(qt)) {
+          hits += 1;
         }
       }
+      return hits / queryTokens.length;
+    }
 
-      const flashcardsList = getResourceList(resources, 'flashcards');
-      if (flashcardsList.length > 0) {
-        const matchCard = flashcardsList.find(c => c.q && (c.q.toLowerCase().includes(qLower) || c.a.toLowerCase().includes(qLower)));
-        if (matchCard) {
-          return `Extracted from Flashcards Index:\nQ: ${matchCard.q}\nA: ${matchCard.a}`;
+    function synthesizeTutorResponse(query, chapter, subject) {
+      const qLower = query.toLowerCase().trim();
+      const resources = chapter.resources || {};
+
+      if (/^(hi|hello|hey|good morning|good afternoon|good evening)\b/.test(qLower)) {
+        return `Hello! Ready to study **${chapter.name}**? Feel free to ask me to explain any concept, formula, or definition from this chapter.`;
+      }
+      if (qLower.includes('what is this chapter') || qLower.includes('overview') || qLower.includes('summary') || qLower.includes('what will we learn') || qLower.includes('topics')) {
+        let overview = `In **${chapter.name}** (${subject?.name || 'Course'}), we cover ${chapter.description || 'the core principles and applications of this topic'}.`;
+        if (resources.mindmap && resources.mindmap.children && resources.mindmap.children.length > 0) {
+          const branches = resources.mindmap.children.map(b => {
+            const subs = b.children ? ` (${b.children.map(s => s.name).join(', ')})` : '';
+            return `**${b.name}**${subs}`;
+          });
+          overview += `\n\nThe main areas we explore include ${branches.join(' and ')}. Which part would you like to dive into first?`;
         }
+        return overview;
       }
 
-      const quizList = getResourceList(resources, 'quiz');
-      if (quizList.length > 0) {
-        const matchQuiz = quizList.find(q => q.question && q.question.toLowerCase().includes(qLower));
-        if (matchQuiz) {
-          return `Extracted from Quiz Questions:\nQ: ${matchQuiz.question}\nCorrect Answer: ${matchQuiz.options[matchQuiz.answer]}`;
+      const queryTokens = tokenize(query);
+      let candidates = [];
+
+      const flashcards = getResourceList(resources, 'flashcards');
+      flashcards.forEach(fc => {
+        const qScore = computeMatchScore(queryTokens, fc.q);
+        const aScore = computeMatchScore(queryTokens, fc.a);
+        const score = Math.max(qScore * 1.2, aScore);
+        if (score > 0.35) {
+          candidates.push({
+            score,
+            type: 'flashcard',
+            q: fc.q,
+            a: fc.a
+          });
         }
+      });
+
+      const quizItems = getResourceList(resources, 'quiz');
+      quizItems.forEach(qz => {
+        const correctOpt = qz.options?.[qz.answer] || '';
+        const score = computeMatchScore(queryTokens, `${qz.question} ${correctOpt}`);
+        if (score > 0.4) {
+          candidates.push({
+            score,
+            type: 'quiz',
+            q: qz.question,
+            a: correctOpt
+          });
+        }
+      });
+
+      const textSources = [
+        ...getResourceList(resources, 'notes').map(n => n.content || ''),
+        ...getResourceList(resources, 'audio').map(a => a.content || ''),
+        ...getResourceList(resources, 'video').map(v => v.content || ''),
+        ...getResourceList(resources, 'slides').map(s => s.content || '')
+      ];
+
+      textSources.forEach(content => {
+        if (!content) return;
+        const lines = content
+          .split(/\n+/)
+          .map(l => l.replace(/^#+\s*/, '').replace(/^\d+\.\s*/, '').trim())
+          .filter(l => l.length > 6);
+
+        lines.forEach(line => {
+          const score = computeMatchScore(queryTokens, line);
+          if (score > 0.35) {
+            candidates.push({
+              score,
+              type: 'note',
+              text: line
+            });
+          }
+        });
+      });
+
+      const tables = getResourceList(resources, 'datatable');
+      tables.forEach(dt => {
+        if (!dt.columns || !dt.rows) return;
+        dt.rows.forEach(row => {
+          const rowText = row.join(' ');
+          const score = computeMatchScore(queryTokens, `${dt.columns.join(' ')} ${rowText}`);
+          if (score > 0.4) {
+            const pairs = dt.columns.map((col, idx) => `**${col}**: ${row[idx] || '-'}`).join(', ');
+            candidates.push({
+              score,
+              type: 'table',
+              text: pairs
+            });
+          }
+        });
+      });
+
+      if (resources.mindmap) {
+        const walkNodes = (node, parentName = '') => {
+          const score = computeMatchScore(queryTokens, `${node.name} ${parentName}`);
+          if (score > 0.45) {
+            const subNames = node.children ? node.children.map(c => c.name).join(', ') : '';
+            candidates.push({
+              score,
+              type: 'concept',
+              name: node.name,
+              parent: parentName,
+              subs: subNames
+            });
+          }
+          if (node.children) {
+            node.children.forEach(child => walkNodes(child, node.name));
+          }
+        };
+        walkNodes(resources.mindmap);
       }
 
-      const dtList = getResourceList(resources, 'datatable');
-      if (dtList.length > 0 && dtList[0].rows) {
-        const matchRow = dtList[0].rows.find(row => row.some(cell => String(cell).toLowerCase().includes(qLower)));
-        if (matchRow) {
-          return `Extracted from Chapter Data Table:\n${dtList[0].columns.join(' | ')}\n${matchRow.join(' | ')}`;
+      candidates.sort((a, b) => b.score - a.score);
+
+      if (candidates.length > 0) {
+        const top = candidates[0];
+        let reply = '';
+
+        if (top.type === 'flashcard' || top.type === 'quiz') {
+          const cleanAnswer = top.a.trim();
+          const cleanQuestion = top.q.trim().replace(/\?$/, '');
+          if (qLower.startsWith('what is') || qLower.startsWith('define') || qLower.includes('formula') || qLower.includes('unit')) {
+            reply = `In **${chapter.name}**, **${cleanAnswer}** is the answer to *${cleanQuestion.toLowerCase()}*.`;
+          } else {
+            reply = `Here's how that works in **${chapter.name}**: **${cleanAnswer}** (${cleanQuestion}).`;
+          }
+        } else if (top.type === 'note') {
+          if (top.text.includes(':')) {
+            const [term, desc] = top.text.split(/:(.+)/);
+            reply = `According to our **${chapter.name}** syllabus, **${term.trim()}** is given by: **${desc.trim()}**.`;
+          } else {
+            reply = `In **${chapter.name}**, a key principle to remember is: **${top.text}**.`;
+          }
+        } else if (top.type === 'table') {
+          reply = `For that value in **${chapter.name}**, here are the exact properties: ${top.text}.`;
+        } else if (top.type === 'concept') {
+          reply = `**${top.name}** is an important concept${top.parent ? ` under **${top.parent}**` : ''} in **${chapter.name}**.`;
+          if (top.subs) {
+            reply += ` It specifically involves topics like **${top.subs}**.`;
+          }
         }
+
+        const second = candidates.find(c => c !== top && c.score > 0.5 && (c.text !== top.text && c.a !== top.a));
+        if (second) {
+          if (second.type === 'note' && second.text !== top.text) {
+            reply += `\n\nAlso worth noting: ${second.text}.`;
+          } else if (second.type === 'table') {
+            reply += `\n\nRelated reference values: ${second.text}.`;
+          }
+        }
+
+        reply += `\n\nWould you like me to explain any part of this further or test you with a practice question?`;
+        return reply;
       }
 
-      return `AI Response regarding "${query}":\nBased on uploaded chapter resources, concepts adhere to standard educational guidelines. Consult the Reports, Flashcards, or Data Table section for detailed data tables and formulas.`;
+      const chapterSummary = chapter.description ? ` (${chapter.description.toLowerCase().replace(/\.$/, '')})` : '';
+      return `That's a great question! While I don't have a specific note covering "${query}" in detail yet, this chapter (**${chapter.name}**${chapterSummary}) focuses on the core principles of ${subject?.name || 'this subject'}.\n\nTry asking about a specific formula, law, or key term from **${chapter.name}**, and I'll walk you through it!`;
     }
 
     // --- MODAL AND UPLOADER HANDLERS ---
@@ -1556,7 +1744,6 @@
             appState.data.config.brandName = document.getElementById('f-brand-name').value;
             appState.data.config.logoUrl = document.getElementById('f-logo-url').value;
             
-            // Save all custom UI static texts
             if (!appState.data.config.uiTexts) appState.data.config.uiTexts = {};
             appState.data.config.uiTexts.classesTitle = document.getElementById('f-ui-classesTitle').value;
             appState.data.config.uiTexts.classesSubtitle = document.getElementById('f-ui-classesSubtitle').value;
