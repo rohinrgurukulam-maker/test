@@ -1295,11 +1295,40 @@
     function synthesizeTutorResponse(query, chapter, subject) {
       const qLower = query.toLowerCase().trim();
       const resources = chapter.resources || {};
+      
+      const curClass = appState.data.classes.find(c => c.id === appState.selectedClassId);
+      const curMedium = curClass?.mediums?.find(m => m.id === appState.selectedMediumId);
+      const isMalayalamMedium = curMedium && (curMedium.code === 'MAL' || curMedium.name.toLowerCase().includes('malayalam'));
+      const isMalayalamInput = /[ഀ-ൿ]/.test(query) || qLower.includes('entha') || qLower.includes('aANU') || qLower.includes('para') || qLower.includes('ullathu');
+      const useMalayalam = isMalayalamMedium || isMalayalamInput;
 
-      if (/^(hi|hello|hey|good morning|good afternoon|good evening)\b/.test(qLower)) {
+      if (/^(hi|hello|hey|namaskaram|good morning|good afternoon|good evening)\b/.test(qLower)) {
+        if (useMalayalam) {
+          return `നമസ്കാരം! **${chapter.name}** പഠിക്കുവാൻ തയ്യാറാണോ? ഈ പാഠഭാഗത്തെ ആശയങ്ങൾ, ഫോർമുലകൾ, അല്ലെങ്കിൽ സംശയങ്ങൾ എന്തും എന്നോട് ചോദിക്കാം!`;
+        }
         return `Hello! Ready to study **${chapter.name}**? Feel free to ask me to explain any concept, formula, or definition from this chapter.`;
       }
+
+      if (/^(yes|aah|ok|sure|parayu|explain|അതെ|ശരി)\b/.test(qLower)) {
+        if (useMalayalam) {
+          return `കൊള്ളാം! ഈ വിഷയത്തിൽ നിന്നും ഒരു പരിശീലന ചോദ്യം ഇതാ: **ഇതുമായി ബന്ധപ്പെട്ട പ്രധാന നിയമം അല്ലെങ്കിൽ ഫോർമുല എന്താണ്?** ഉത്തരം പറയൂ!`;
+        }
+        return `Great! Here is a practice question for you: **What is the core principle or formula associated with this topic?** Try answering!`;
+      }
+
       if (qLower.includes('what is this chapter') || qLower.includes('overview') || qLower.includes('summary') || qLower.includes('what will we learn') || qLower.includes('topics')) {
+        if (useMalayalam) {
+          let overview = `**${chapter.name}** (${subject?.name || 'വിഷയം'}) എന്ന പാഠഭാഗത്ത് നമ്മൾ ${chapter.description || 'പ്രധാന ആശയങ്ങളും നിയമങ്ങളും'} ചർച്ച ചെയ്യുന്നു.`;
+          if (resources.mindmap && resources.mindmap.children && resources.mindmap.children.length > 0) {
+            const branches = resources.mindmap.children.map(b => {
+              const subs = b.children ? ` (${b.children.map(s => s.name).join(', ')})` : '';
+              return `**${b.name}**${subs}`;
+            });
+            overview += `\n\nപ്രധാനമായും ചർച്ച ചെയ്യുന്ന വിഷയങ്ങൾ ഇവയാണ്: ${branches.join(', ')}. ഏത് ഭാഗത്തെക്കുറിച്ചാണ് ആദ്യം അറിയേണ്ടത്?`;
+          }
+          return overview;
+        }
+
         let overview = `In **${chapter.name}** (${subject?.name || 'Course'}), we cover ${chapter.description || 'the core principles and applications of this topic'}.`;
         if (resources.mindmap && resources.mindmap.children && resources.mindmap.children.length > 0) {
           const branches = resources.mindmap.children.map(b => {
@@ -1320,12 +1349,7 @@
         const aScore = computeMatchScore(queryTokens, fc.a);
         const score = Math.max(qScore * 1.2, aScore);
         if (score > 0.35) {
-          candidates.push({
-            score,
-            type: 'flashcard',
-            q: fc.q,
-            a: fc.a
-          });
+          candidates.push({ score, type: 'flashcard', q: fc.q, a: fc.a });
         }
       });
 
@@ -1334,12 +1358,7 @@
         const correctOpt = qz.options?.[qz.answer] || '';
         const score = computeMatchScore(queryTokens, `${qz.question} ${correctOpt}`);
         if (score > 0.4) {
-          candidates.push({
-            score,
-            type: 'quiz',
-            q: qz.question,
-            a: correctOpt
-          });
+          candidates.push({ score, type: 'quiz', q: qz.question, a: correctOpt });
         }
       });
 
@@ -1360,11 +1379,7 @@
         lines.forEach(line => {
           const score = computeMatchScore(queryTokens, line);
           if (score > 0.35) {
-            candidates.push({
-              score,
-              type: 'note',
-              text: line
-            });
+            candidates.push({ score, type: 'note', text: line });
           }
         });
       });
@@ -1377,11 +1392,7 @@
           const score = computeMatchScore(queryTokens, `${dt.columns.join(' ')} ${rowText}`);
           if (score > 0.4) {
             const pairs = dt.columns.map((col, idx) => `**${col}**: ${row[idx] || '-'}`).join(', ');
-            candidates.push({
-              score,
-              type: 'table',
-              text: pairs
-            });
+            candidates.push({ score, type: 'table', text: pairs });
           }
         });
       });
@@ -1391,13 +1402,7 @@
           const score = computeMatchScore(queryTokens, `${node.name} ${parentName}`);
           if (score > 0.45) {
             const subNames = node.children ? node.children.map(c => c.name).join(', ') : '';
-            candidates.push({
-              score,
-              type: 'concept',
-              name: node.name,
-              parent: parentName,
-              subs: subNames
-            });
+            candidates.push({ score, type: 'concept', name: node.name, parent: parentName, subs: subNames });
           }
           if (node.children) {
             node.children.forEach(child => walkNodes(child, node.name));
@@ -1415,29 +1420,40 @@
         if (top.type === 'flashcard' || top.type === 'quiz') {
           const cleanAnswer = top.a.trim();
           const cleanQuestion = top.q.trim().replace(/\?$/, '');
-          if (qLower.startsWith('what is') || qLower.startsWith('define') || qLower.includes('formula') || qLower.includes('unit')) {
+          if (useMalayalam) {
+            reply = `**${chapter.name}** പാഠഭാഗത്ത്, *${cleanQuestion}*-നുള്ള ഉത്തരം **${cleanAnswer}** ആകുന്നു.`;
+          } else if (qLower.startsWith('what is') || qLower.startsWith('define') || qLower.includes('formula') || qLower.includes('unit')) {
             reply = `In **${chapter.name}**, **${cleanAnswer}** is the answer to *${cleanQuestion.toLowerCase()}*.`;
           } else {
             reply = `Here's how that works in **${chapter.name}**: **${cleanAnswer}** (${cleanQuestion}).`;
           }
         } else if (top.type === 'note') {
-          if (top.text.includes(':')) {
+          if (useMalayalam) {
+            reply = `സിലബസ് നോട്ടുകൾ അനുസരിച്ച്: **${top.text}**.`;
+          } else if (top.text.includes(':')) {
             const [term, desc] = top.text.split(/:(.+)/);
             reply = `According to our **${chapter.name}** syllabus, **${term.trim()}** is given by: **${desc.trim()}**.`;
           } else {
             reply = `In **${chapter.name}**, a key principle to remember is: **${top.text}**.`;
           }
         } else if (top.type === 'table') {
-          reply = `For that value in **${chapter.name}**, here are the exact properties: ${top.text}.`;
+          if (useMalayalam) {
+            reply = `ഈ വിവരങ്ങൾ പ്രകാരം കൃത്യമായ കണക്കുകൾ: ${top.text}.`;
+          } else {
+            reply = `For that value in **${chapter.name}**, here are the exact properties: ${top.text}.`;
+          }
         } else if (top.type === 'concept') {
-          reply = `**${top.name}** is an important concept${top.parent ? ` under **${top.parent}**` : ''} in **${chapter.name}**.`;
-          if (top.subs) {
-            reply += ` It specifically involves topics like **${top.subs}**.`;
+          if (useMalayalam) {
+            reply = `**${top.name}** എന്നത് **${chapter.name}** പാഠഭാഗത്തെ${top.parent ? ` **${top.parent}**-ന് കീഴിലുള്ള` : ''} ഒരു പ്രധാന ആശയമാണ്.`;
+            if (top.subs) reply += ` ഇതിൽ ഉൾപ്പെടുന്ന പ്രധാന ഘടകങ്ങൾ: **${top.subs}**.`;
+          } else {
+            reply = `**${top.name}** is an important concept${top.parent ? ` under **${top.parent}**` : ''} in **${chapter.name}**.`;
+            if (top.subs) reply += ` It specifically involves topics like **${top.subs}**.`;
           }
         }
 
         const second = candidates.find(c => c !== top && c.score > 0.5 && (c.text !== top.text && c.a !== top.a));
-        if (second) {
+        if (second && !useMalayalam) {
           if (second.type === 'note' && second.text !== top.text) {
             reply += `\n\nAlso worth noting: ${second.text}.`;
           } else if (second.type === 'table') {
@@ -1445,17 +1461,17 @@
           }
         }
 
-        reply += `\n\nWould you like me to explain any part of this further or test you with a practice question?`;
+        reply += useMalayalam ? `\n\nഇതുമായി ബന്ധപ്പെട്ട് കൂടുതൽ കാര്യങ്ങൾ അറിയണമെന്നുണ്ടോ?` : `\n\nWould you like me to explain any part of this further or test you with a practice question?`;
         return reply;
+      }
+
+      if (useMalayalam) {
+        return `അതൊരു നല്ല ചോദ്യമാണ്! എങ്കിലും "${query}" എന്നതിനെക്കുറിച്ചുള്ള കൃത്യമായ വിവരങ്ങൾ ഈ പാഠഭാഗത്ത് ലഭ്യമല്ല. **${chapter.name}** പാഠഭാഗത്തെ ഏതെങ്കിലും ഫോർമുലയോ പ്രധാന പദമോ ചോദിക്കൂ, ഞാൻ സഹായിക്കാം!`;
       }
 
       const chapterSummary = chapter.description ? ` (${chapter.description.toLowerCase().replace(/\.$/, '')})` : '';
       return `That's a great question! While I don't have a specific note covering "${query}" in detail yet, this chapter (**${chapter.name}**${chapterSummary}) focuses on the core principles of ${subject?.name || 'this subject'}.\n\nTry asking about a specific formula, law, or key term from **${chapter.name}**, and I'll walk you through it!`;
     }
-
-    // --- MODAL AND UPLOADER HANDLERS ---
-    let modalAction = null;
-    let modalTargetId = null;
 
     function openModal(action, targetId = null) {
       modalAction = action;
