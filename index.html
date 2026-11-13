@@ -2202,7 +2202,7 @@
         gl.uniform2f(uSplat.pointA, p.px, p.py);
         gl.uniform2f(uSplat.pointB, p.x, p.y);
         gl.uniform3f(uSplat.color, (p.x - p.px) * 5000, (p.y - p.py) * 5000, 0);
-        gl.uniform1f(uSplat.radius, 0.003);
+        gl.uniform1f(uSplat.radius, 0.0003);
         blit(velocity.write); velocity.swap();
 
         gl.uniform1i(uSplat.uTarget, dye.read.attach(0));
