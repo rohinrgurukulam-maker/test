@@ -2200,7 +2200,7 @@
       gl.uniform2f(uSplat.pointA, x, y);
       gl.uniform2f(uSplat.pointB, x + 0.001, y + 0.001);
       gl.uniform3f(uSplat.color, 8000.0, 8000.0, 8000.0);
-      gl.uniform1f(uSplat.radius, 0.008);
+      gl.uniform1f(uSplat.radius, 0.00008);
       blit(velocity.write); velocity.swap();
 
       gl.uniform1i(uSplat.uTarget, dye.read.attach(0));
@@ -2235,12 +2235,12 @@
       gl.uniform1i(u.uVelocity, velocity.read.attach(0));
       gl.uniform1i(u.uSource, velocity.read.attach(0));
       gl.uniform1f(u.dt, dt);
-      gl.uniform1f(u.dissipation, 8.0);
+      gl.uniform1f(u.dissipation, 12.0);
       blit(velocity.write); velocity.swap();
 
       gl.uniform1i(u.uVelocity, velocity.read.attach(0));
       gl.uniform1i(u.uSource, dye.read.attach(1));
-      gl.uniform1f(u.dissipation, 3.0);
+      gl.uniform1f(u.dissipation, 4.5);
       blit(dye.write); dye.swap();
 
       let uDisp = use('display');
