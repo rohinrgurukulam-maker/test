@@ -24,6 +24,7 @@
     }
   }
 </script>
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
@@ -51,9 +52,31 @@
   width: 100%;
   height: 100%;
 }
+.galaxy-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none; /* Ensures mouse clicks pass right through to your buttons and cards */
+  z-index: -1;          /* Keeps it locked safely in the background */
+}
+
+.galaxy-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
   </style>
 </head>
-<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200 relative">
+
+  <!-- Galaxy Background Canvas Layer -->
+  <div class="galaxy-container" id="galaxy-root">
+    <canvas class="galaxy-canvas" id="galaxy-canvas"></canvas>
+  </div>
+
+<!-- Theme-Aware Background Layer Manager -->
+<div class="fixed inset-0 pointer-events-none z-[-1]" id="bg-container">
+  <canvas class="block w-full h-full" id="galaxy-canvas"></canvas>
+</div>
 
   <!-- Top Navigation Header & Admin Bar -->
   <header class="sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
@@ -91,7 +114,7 @@
         <div class="flex items-center gap-3">
 <button onclick="toggleCursorMode()" id="cursor-toggle-btn" class="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition text-xs font-medium flex items-center gap-1.5 btn-3d">
   <i class="fa-solid fa-wand-magic-sparkles text-brand-500"></i>
- 
+  
 </button>
           <button onclick="toggleTheme()" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition" title="Toggle Theme">
             <i id="theme-icon" class="fa-solid fa-moon text-lg"></i>
@@ -2270,6 +2293,277 @@ function toggleCursorMode() {
     }
     requestAnimationFrame(update);
   });
+})();
+</script>
+
+<script>
+(function() {
+  const glCanvas = document.getElementById('galaxy-canvas');
+  if (!glCanvas) return;
+
+  // 1. Create a dedicated 2D canvas for Light Mode right next to galaxy-canvas
+  const dotCanvas = document.createElement('canvas');
+  dotCanvas.id = 'dot-grid-canvas';
+  dotCanvas.style.cssText = 'position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -1;';
+  glCanvas.parentNode.insertBefore(dotCanvas, glCanvas.nextSibling);
+
+  const ctx2d = dotCanvas.getContext('2d');
+  const gl = glCanvas.getContext('webgl2', { alpha: true });
+  const htmlEl = document.documentElement;
+
+  let width, height;
+  let mouse = { x: -1000, y: -1000 };
+  let dots = [];
+  let ripples = [];
+
+  const spacing = 32;
+  const stiffness = 0.08;
+  const damping = 0.82;
+
+  class JellyDot {
+    constructor(originX, originY) {
+      this.ox = originX;
+      this.oy = originY;
+      this.x = originX;
+      this.y = originY;
+      this.vx = 0;
+      this.vy = 0;
+    }
+
+    update(mx, my, activeRipples) {
+      let dx = mx - this.ox;
+      let dy = my - this.oy;
+      let dist = Math.sqrt(dx * dx + dy * dy);
+
+      let targetX = this.ox;
+      let targetY = this.oy;
+      let energy = 0;
+
+      // Cursor hover repulsion
+      const hoverRadius = 120;
+      if (dist < hoverRadius && dist > 0) {
+        let factor = (1 - dist / hoverRadius);
+        targetX = this.ox - (dx / dist) * factor * 22;
+        targetY = this.oy - (dy / dist) * factor * 22;
+        energy = Math.max(energy, factor);
+      }
+
+      // Click ripple shockwave
+      for (let r of activeRipples) {
+        let rdx = this.ox - r.x;
+        let rdy = this.oy - r.y;
+        let rDist = Math.sqrt(rdx * rdx + rdy * rdy);
+
+        let waveWidth = 55;
+        let distanceToWave = Math.abs(rDist - r.radius);
+        if (distanceToWave < waveWidth) {
+          let waveFactor = (1 - distanceToWave / waveWidth) * r.alpha;
+          energy = Math.max(energy, waveFactor * 2.5);
+
+          if (rDist > 0) {
+            targetX += (rdx / rDist) * waveFactor * 35;
+            targetY += (rdy / rDist) * waveFactor * 35;
+          }
+        }
+      }
+
+      // Hooke's Law spring physics
+      let ax = (targetX - this.x) * stiffness;
+      let ay = (targetY - this.y) * stiffness;
+
+      this.vx = (this.vx + ax) * damping;
+      this.vy = (this.vy + ay) * damping;
+
+      this.x += this.vx;
+      this.y += this.vy;
+
+      return energy;
+    }
+  }
+
+  function resize() {
+    width = dotCanvas.width = glCanvas.width = window.innerWidth;
+    height = dotCanvas.height = glCanvas.height = window.innerHeight;
+    dots = [];
+    for (let x = spacing / 2; x < width; x += spacing) {
+      for (let y = spacing / 2; y < height; y += spacing) {
+        dots.push(new JellyDot(x, y));
+      }
+    }
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+
+  window.addEventListener('mousemove', (e) => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+  });
+
+  window.addEventListener('mouseleave', () => {
+    mouse.x = -1000;
+    mouse.y = -1000;
+  });
+
+  // Trigger ripple when clicking anywhere in Light Mode
+  window.addEventListener('click', (e) => {
+    const isDark = htmlEl.classList.contains('dark') || document.body.classList.contains('dark');
+    if (!isDark) {
+      ripples.push({
+        x: e.clientX,
+        y: e.clientY,
+        radius: 0,
+        maxRadius: Math.max(width, height) * 0.8,
+        alpha: 1.0,
+        speed: 9
+      });
+    }
+  });
+
+  // --- SETUP DARK MODE GALAXY SHADER ---
+  let galaxyProg = null;
+  let quadBuffer = null;
+  let startTime = performance.now();
+
+  if (gl) {
+    const vSource = `#version 300 es
+    in vec2 aPosition;
+    void main() { gl_Position = vec4(aPosition, 0.0, 1.0); }`;
+
+    const fSource = `#version 300 es
+    precision highp float;
+    uniform float uTime;
+    uniform vec2 uResolution;
+    uniform float uOpacity;
+    out vec4 outColor;
+
+    float Hash21(vec2 p) {
+      p = fract(p * vec2(123.34, 456.21));
+      p += dot(p, p + 45.32);
+      return fract(p.x * p.y);
+    }
+
+    float Star(vec2 uv, float flare) {
+      float d = length(uv);
+      float m = 0.03 / d;
+      float rays = max(0.0, 1.0 - abs(uv.x * uv.y * 1500.0));
+      m += rays * flare * 0.8;
+      uv *= mat2(0.707, -0.707, 0.707, 0.707);
+      float rays2 = max(0.0, 1.0 - abs(uv.x * uv.y * 1500.0));
+      m += rays2 * 0.4 * flare * 0.8;
+      m *= smoothstep(1.0, 0.1, d);
+      return m;
+    }
+
+    void main() {
+      vec2 uv = (gl_FragCoord.xy - 0.5 * uResolution.xy) / min(uResolution.x, uResolution.y);
+      vec3 col = vec3(0.015, 0.015, 0.03);
+
+      for (int k = 1; k <= 4; k++) {
+        float fi = float(k);
+        float scale = 6.0 * fi;
+        vec2 shift = vec2(uTime * 0.01 * fi, uTime * 0.005 * fi);
+        vec2 p = uv * scale + shift;
+        vec2 id = floor(p);
+        vec2 gv = fract(p) - 0.5;
+
+        float seed = Hash21(id);
+        if (seed > 0.75) {
+          float size = fract(seed * 345.32);
+          float flare = smoothstep(0.9, 1.0, size);
+          vec3 starColor = vec3(1.0);
+          float colorPick = Hash21(id + 7.0);
+          if (colorPick < 0.35) starColor = vec3(0.95, 0.2, 0.2);
+          else if (colorPick < 0.65) starColor = vec3(1.0, 0.75, 0.1);
+          else if (colorPick < 0.8) starColor = vec3(0.2, 0.7, 0.3);
+
+          float star = Star(gv, flare);
+          float twinkle = sin(uTime * 2.0 + seed * 6.28) * 0.4 + 0.6;
+          col += starColor * star * size * twinkle * (1.2 / fi);
+        }
+      }
+      outColor = vec4(col, uOpacity);
+    }`;
+
+    const compile = (type, src) => {
+      let s = gl.createShader(type);
+      gl.shaderSource(s, src);
+      gl.compileShader(s);
+      return s;
+    };
+
+    galaxyProg = gl.createProgram();
+    gl.attachShader(galaxyProg, compile(gl.VERTEX_SHADER, vSource));
+    gl.attachShader(galaxyProg, compile(gl.FRAGMENT_SHADER, fSource));
+    gl.bindAttribLocation(galaxyProg, 0, 'aPosition');
+    gl.linkProgram(galaxyProg);
+
+    quadBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  }
+
+  // --- UNIFIED ANIMATION LOOP ---
+  function animate(now) {
+    // Check both <html> and <body> for the 'dark' class so it works regardless of how your toggle is wired
+    const isDark = htmlEl.classList.contains('dark') || document.body.classList.contains('dark');
+
+    if (isDark) {
+      glCanvas.style.display = 'block';
+      dotCanvas.style.display = 'none';
+
+      if (gl && galaxyProg) {
+        gl.viewport(0, 0, glCanvas.width, glCanvas.height);
+        gl.useProgram(galaxyProg);
+        gl.uniform1f(gl.getUniformLocation(galaxyProg, 'uTime'), (now - startTime) / 1000.0);
+        gl.uniform2f(gl.getUniformLocation(galaxyProg, 'uResolution'), glCanvas.width, glCanvas.height);
+        gl.uniform1f(gl.getUniformLocation(galaxyProg, 'uOpacity'), 0.95);
+
+        gl.enableVertexAttribArray(0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffer);
+        gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+      }
+    } else {
+      glCanvas.style.display = 'none';
+      dotCanvas.style.display = 'block';
+
+      ctx2d.clearRect(0, 0, width, height);
+
+      for (let i = ripples.length - 1; i >= 0; i--) {
+        let r = ripples[i];
+        r.radius += r.speed;
+        r.alpha = 1 - (r.radius / r.maxRadius);
+        if (r.radius >= r.maxRadius || r.alpha <= 0) {
+          ripples.splice(i, 1);
+        }
+      }
+
+     for (let dot of dots) {
+        let energy = dot.update(mouse.x, mouse.y, ripples);
+
+        let radius = 2.0 + energy * 4.0;
+        let alpha = 0.4 + energy * 0.6;
+
+        ctx2d.beginPath();
+        if (energy > 0.15) {
+          // Pill/dash stretch on click ripple
+          ctx2d.ellipse(dot.x, dot.y, radius * 2.5, radius * 0.9, Math.atan2(dot.vy, dot.vx), 0, Math.PI * 2);
+          // <--- THIS IS THE FIX: Glowing lime-green color on click matching your reference image --->
+          ctx2d.fillStyle = `rgba(163, 230, 53, ${alpha})`; 
+        } else {
+          ctx2d.arc(dot.x, dot.y, radius, 0, Math.PI * 2);
+          // Default resting dot color in light mode (subtle rose/pink or dark slate)
+          ctx2d.fillStyle = `rgba(225, 29, 72, ${alpha})`;
+        }
+        ctx2d.fill();
+      }
+    }
+
+    requestAnimationFrame(animate);
+  }
+
+  requestAnimationFrame(animate);
 })();
 </script>
 </body>
