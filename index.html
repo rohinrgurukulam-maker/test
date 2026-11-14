@@ -64,9 +64,75 @@
   width: 100%;
   height: 100%;
 }
+/* --- HOLOCARD STYLES --- */
+    .holo-card-wrapper {
+      --hc-w: 280px;
+      --hc-ratio: 0.716;
+      --hc-radius: 14px;
+      position: relative;
+      display: inline-block;
+      width: var(--hc-w);
+      max-width: 100%;
+      aspect-ratio: var(--hc-ratio);
+      border-radius: var(--hc-radius);
+      outline: none;
+      user-select: none;
+      cursor: pointer;
+      touch-action: pan-y;
+    }
+    .holo-card__shadow {
+      position: absolute;
+      inset: 10% 7% -4%;
+      border-radius: var(--hc-radius);
+      background: rgba(0, 0, 0, 0.42);
+      filter: blur(26px);
+      pointer-events: none;
+      will-change: transform;
+    }
+    .holo-card__rotor {
+      position: absolute;
+      inset: 0;
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+    .holo-card__face {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      border-radius: var(--hc-radius);
+      backface-visibility: hidden;
+    }
+    .holo-card__face img, .holo-card__face canvas {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    .holo-card__face img { object-fit: cover; pointer-events: none; }
+    .holo-card__face canvas { opacity: 0; transition: opacity 0.3s ease; }
+    .holo-card-wrapper[data-ready] .holo-card__face canvas { opacity: 1; }
+
   </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200 relative">
+
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200 relative">
+
+  <!-- WELCOME IMAGE POP-UP MODAL -->
+  <div id="welcome-popup" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 transition-opacity duration-300">
+    <div class="relative max-w-md w-full rounded-2xl overflow-hidden shadow-2xl border border-white/20 bg-white dark:bg-slate-900">
+      <button id="close-popup-btn" aria-label="Close" class="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center text-lg font-bold transition-transform hover:scale-110 cursor-pointer">
+        &times;
+      </button>
+      <img id="welcome-popup-img" src="" alt="New Gurukulam Announcement" class="w-full h-auto max-h-[75vh] object-contain block mx-auto" />
+      <div class="w-full h-1 bg-slate-200 dark:bg-slate-800">
+        <div id="popup-progress" class="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 w-full transition-all duration-[5000ms] ease-linear"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rest of your existing page content follows below... -->
 
   <!-- Galaxy Background Canvas Layer -->
   <div class="galaxy-container" id="galaxy-root">
@@ -133,6 +199,40 @@
 
   <!-- Main View Area -->
   <main id="app-content" class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+<!-- PASTE THIS BLOCK RIGHT BEFORE </main> -->
+    <div class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+      <span class="text-xs font-medium text-slate-500 dark:text-slate-400">
+        ⚙️ Admin Controls
+      </span>
+      <button id="bg-toggle-btn" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-medium transition-all cursor-pointer">
+        Background: <span id="bg-status" class="text-indigo-600 dark:text-amber-400 font-bold">ON</span>
+      </button>
+    </div>
+
+<!-- ADMIN POP-UP IMAGE MANAGER -->
+  <div class="mt-5 pt-4 border-t border-slate-200 dark:border-slate-800">
+    <div class="flex items-center justify-between mb-2">
+      <span class="text-xs font-semibold text-slate-600 dark:text-slate-300">
+        🖼️ Admin: Welcome Pop-Up Poster
+      </span>
+      <span id="popup-admin-status" class="text-[11px] font-medium text-slate-400">No poster set</span>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-2">
+      <input type="file" id="popup-file-input" accept="image/*" class="hidden" />
+      <button id="upload-popup-btn" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium transition-colors cursor-pointer">
+        Upload / Change Image
+      </button>
+      <button id="preview-popup-btn" class="hidden px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-medium transition-colors cursor-pointer">
+        Preview
+      </button>
+      <button id="delete-popup-btn" class="hidden px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-medium transition-colors cursor-pointer">
+        Delete Poster
+      </button>
+    </div>
+  </div>
+
     <!-- Rendered dynamically -->
   </main>
 
@@ -378,6 +478,45 @@ function toggleCursorMode() {
       }
     }
 
+// --- BACKGROUND ANIMATION TOGGLE ---
+    if (appState.bgEnabled === undefined) {
+      appState.bgEnabled = localStorage.getItem('newgurukulam_bg') !== 'false';
+    }
+
+    function toggleBackground() {
+      appState.bgEnabled = !appState.bgEnabled;
+      localStorage.setItem('newgurukulam_bg', appState.bgEnabled);
+      applyBackgroundState();
+    }
+
+    function applyBackgroundState() {
+      const bgStatus = document.getElementById('bg-status');
+      const glCanvas = document.getElementById('galaxy-canvas');
+      const dotCanvas = document.getElementById('dot-grid-canvas');
+
+      if (bgStatus) {
+        bgStatus.textContent = appState.bgEnabled ? 'ON' : 'OFF';
+        bgStatus.className = appState.bgEnabled 
+          ? 'text-indigo-600 dark:text-amber-400 font-bold' 
+          : 'text-rose-500 font-bold';
+      }
+
+      if (!appState.bgEnabled) {
+        if (glCanvas) glCanvas.style.display = 'none';
+        if (dotCanvas) dotCanvas.style.display = 'none';
+      }
+    }
+
+    // Attach click listener to the admin button
+    const bgToggleBtn = document.getElementById('bg-toggle-btn');
+    if (bgToggleBtn) {
+      bgToggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleBackground();
+      });
+    }
+    applyBackgroundState();
+
     // --- THEME MANAGEMENT ---
     function toggleTheme() {
       appState.theme = appState.theme === 'dark' ? 'light' : 'dark';
@@ -510,6 +649,8 @@ function toggleCursorMode() {
             </button>
           ` : ''}
         </div>
+
+
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       `;
 
@@ -2060,12 +2201,128 @@ function toggleCursorMode() {
       box.classList.add('hidden');
       box.classList.remove('flex');
     }
+// --- WELCOME POP-UP & ADMIN POSTER MANAGER ---
+  let popupTimer = null;
 
-    window.onload = function() {
+  function initWelcomePopup() {
+    const popup = document.getElementById('welcome-popup');
+    const img = document.getElementById('welcome-popup-img');
+    const progress = document.getElementById('popup-progress');
+    const savedPoster = localStorage.getItem('newgurukulam_welcome_poster');
+
+    if (savedPoster && popup && img) {
+      img.src = savedPoster;
+      popup.classList.remove('hidden');
+      
+      if (progress) {
+        progress.style.transition = 'none';
+        progress.style.width = '100%';
+        setTimeout(() => {
+          progress.style.transition = 'width 5000ms linear';
+          progress.style.width = '0%';
+        }, 50);
+      }
+
+      popupTimer = setTimeout(() => {
+        closeWelcomePopup();
+      }, 5000);
+    }
+    updatePopupAdminStatus();
+  }
+
+  function closeWelcomePopup() {
+    const popup = document.getElementById('welcome-popup');
+    if (popup) popup.classList.add('hidden');
+    if (popupTimer) clearTimeout(popupTimer);
+  }
+
+  function updatePopupAdminStatus() {
+    const statusEl = document.getElementById('popup-admin-status');
+    const previewBtn = document.getElementById('preview-popup-btn');
+    const deleteBtn = document.getElementById('delete-popup-btn');
+    const savedPoster = localStorage.getItem('newgurukulam_welcome_poster');
+
+    if (statusEl) {
+      if (savedPoster) {
+        statusEl.textContent = 'Poster Active';
+        statusEl.className = 'text-[11px] font-bold text-emerald-500';
+        if (previewBtn) previewBtn.classList.remove('hidden');
+        if (deleteBtn) deleteBtn.classList.remove('hidden');
+      } else {
+        statusEl.textContent = 'No poster set';
+        statusEl.className = 'text-[11px] font-medium text-slate-400';
+        if (previewBtn) previewBtn.classList.add('hidden');
+        if (deleteBtn) deleteBtn.classList.add('hidden');
+      }
+    }
+  }
+
+  // Bind Admin Upload / Preview / Delete and Close button events
+  document.addEventListener('DOMContentLoaded', () => {
+    const closeBtn = document.getElementById('close-popup-btn');
+    if (closeBtn) closeBtn.addEventListener('click', closeWelcomePopup);
+
+    const uploadBtn = document.getElementById('upload-popup-btn');
+    const fileInput = document.getElementById('popup-file-input');
+    if (uploadBtn && fileInput) {
+      uploadBtn.addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (evt) => {
+            localStorage.setItem('newgurukulam_welcome_poster', evt.target.result);
+            updatePopupAdminStatus();
+            alert('Welcome pop-up poster uploaded successfully!');
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+
+    const previewBtn = document.getElementById('preview-popup-btn');
+    if (previewBtn) {
+      previewBtn.addEventListener('click', () => {
+        const savedPoster = localStorage.getItem('newgurukulam_welcome_poster');
+        if (savedPoster) {
+          const popup = document.getElementById('welcome-popup');
+          const img = document.getElementById('welcome-popup-img');
+          const progress = document.getElementById('popup-progress');
+          if (popup && img) {
+            img.src = savedPoster;
+            popup.classList.remove('hidden');
+            if (progress) {
+              progress.style.transition = 'none';
+              progress.style.width = '100%';
+              setTimeout(() => {
+                progress.style.transition = 'width 5000ms linear';
+                progress.style.width = '0%';
+              }, 50);
+            }
+            if (popupTimer) clearTimeout(popupTimer);
+            popupTimer = setTimeout(closeWelcomePopup, 5000);
+          }
+        }
+      });
+    }
+
+    const deleteBtn = document.getElementById('delete-popup-btn');
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', () => {
+        if (confirm('Delete the welcome pop-up poster?')) {
+          localStorage.removeItem('newgurukulam_welcome_poster');
+          updatePopupAdminStatus();
+          alert('Welcome poster deleted.');
+        }
+      });
+    }
+  });
+   window.onload = function() {
       loadState();
       updateAdminUI();
       renderBreadcrumb();
       renderView();
+      initWelcomePopup(); // <-- ADD THIS LINE HERE
     };
   </script>
     <!-- Splash Cursor Background Layer -->
@@ -2316,9 +2573,9 @@ function toggleCursorMode() {
   let dots = [];
   let ripples = [];
 
-  const spacing = 32;
+  const spacing = 42;
   const stiffness = 0.08;
-  const damping = 0.82;
+  const damping = 0.72;
 
   class JellyDot {
     constructor(originX, originY) {
@@ -2506,6 +2763,8 @@ function toggleCursorMode() {
   // --- UNIFIED ANIMATION LOOP ---
   function animate(now) {
     // Check both <html> and <body> for the 'dark' class so it works regardless of how your toggle is wired
+    
+
     const isDark = htmlEl.classList.contains('dark') || document.body.classList.contains('dark');
 
     if (isDark) {
@@ -2565,6 +2824,213 @@ function toggleCursorMode() {
 
   requestAnimationFrame(animate);
 })();
+
+// --- HOLOCARD WEBGL HOLOGRAPHIC SHADER ANIMATION ---
+  function initHoloCard() {
+    const canvas = document.getElementById('holo-webgl-canvas');
+    if (!canvas) return;
+    const gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: true });
+    if (!gl) return;
+
+    const vsSource = `
+      attribute vec2 aPosition;
+      void main() {
+        gl_Position = vec4(aPosition, 0.0, 1.0);
+      }
+    `;
+
+    const fsSource = `
+      precision mediump float;
+      uniform vec2 uResolution;
+      uniform vec2 uMouse;
+      uniform float uTime;
+
+      void main() {
+        vec2 uv = gl_FragCoord.xy / uResolution;
+        vec2 p = (gl_FragCoord.xy - 0.5 * uResolution) / min(uResolution.x, uResolution.y);
+        
+        // Holographic rainbow foil shift based on mouse and time
+        float angle = uMouse.x * 3.14159 + uTime * 0.5;
+        float sheen = sin(p.x * 10.0 + angle + sin(p.y * 8.0 - uTime));
+        
+        vec3 col = vec3(
+          sin(sheen * 3.14 + 0.0) * 0.5 + 0.5,
+          sin(sheen * 3.14 + 2.09) * 0.5 + 0.5,
+          sin(sheen * 3.14 + 4.18) * 0.5 + 0.5
+        );
+
+        // Add specular glare spot moving with mouse
+        float d = length(p - (uMouse - 0.5));
+        float glare = smoothstep(0.6, 0.0, d) * 0.6;
+        
+        col += vec3(glare);
+        
+        // Soft opacity mask so it overlays the card nicely
+        float alpha = (sheen * 0.15 + glare * 0.5) + 0.12;
+        gl_FragColor = vec4(col, alpha);
+      }
+    `;
+
+    const createShader = (type, source) => {
+      const shader = gl.createShader(type);
+      gl.shaderSource(shader, source);
+      gl.compileShader(shader);
+      return shader;
+    };
+
+    const program = gl.createProgram();
+    gl.attachShader(program, createShader(gl.VERTEX_SHADER, vsSource));
+    gl.attachShader(program, createShader(gl.FRAGMENT_SHADER, fsSource));
+    gl.linkProgram(program);
+    gl.useProgram(program);
+
+    const positionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
+
+    const aPositionLocation = gl.getAttribLocation(program, "aPosition");
+    gl.enableVertexAttribArray(aPositionLocation);
+    gl.vertexAttribPointer(aPositionLocation, 2, gl.FLOAT, false, 0, 0);
+
+    const uResLoc = gl.getUniformLocation(program, "uResolution");
+    const uMouseLoc = gl.getUniformLocation(program, "uMouse");
+    const uTimeLoc = gl.getUniformLocation(program, "uTime");
+
+    let mouseX = 0.5, mouseY = 0.5;
+    const cardWrapper = document.getElementById('holo-card-demo');
+
+    if (cardWrapper) {
+      cardWrapper.addEventListener('mousemove', (e) => {
+        const rect = cardWrapper.getBoundingClientRect();
+        mouseX = (e.clientX - rect.left) / rect.width;
+        mouseY = 1.0 - (e.clientY - rect.top) / rect.height;
+      });
+    }
+
+    let startTime = performance.now();
+    function render() {
+      canvas.width = canvas.clientWidth * window.devicePixelRatio;
+      canvas.height = canvas.clientHeight * window.devicePixelRatio;
+      gl.viewport(0, 0, canvas.width, canvas.height);
+
+      gl.uniform2f(uResLoc, canvas.width, canvas.height);
+      gl.uniform2f(uMouseLoc, mouseX, mouseY);
+      gl.uniform1f(uTimeLoc, (performance.now() - startTime) / 1000.0);
+
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+      requestAnimationFrame(render);
+    }
+    requestAnimationFrame(render);
+
+    if (cardWrapper) {
+      cardWrapper.setAttribute('data-ready', 'true');
+    }
+  }
+// --- COMBINED 3D TILT & HOLOCARD SHADER ---
+  function initHoloCard() {
+    const canvas = document.getElementById('holo-webgl-canvas');
+    const cardWrapper = document.getElementById('holo-card-demo');
+    if (!canvas || !cardWrapper) return;
+
+    // 1. 3D Tilt Reactivity on Mouse Move
+    cardWrapper.addEventListener('mousemove', (e) => {
+      const rect = cardWrapper.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      const rotor = cardWrapper.querySelector('.holo-card__rotor');
+      if (rotor) {
+        rotor.style.transform = `perspective(1000px) rotateX(${-y * 20}deg) rotateY(${x * 20}deg) scale(1.04)`;
+      }
+    });
+
+    cardWrapper.addEventListener('mouseleave', () => {
+      const rotor = cardWrapper.querySelector('.holo-card__rotor');
+      if (rotor) {
+        rotor.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)`;
+      }
+    });
+
+    // 2. WebGL Holographic Shader Animation
+    const gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: true });
+    if (!gl) return;
+
+    const vsSource = `
+      attribute vec2 aPosition;
+      void main() { gl_Position = vec4(aPosition, 0.0, 1.0); }
+    `;
+
+    const fsSource = `
+      precision mediump float;
+      uniform vec2 uResolution;
+      uniform vec2 uMouse;
+      uniform float uTime;
+
+      void main() {
+        vec2 p = (gl_FragCoord.xy - 0.5 * uResolution) / min(uResolution.x, uResolution.y);
+        float angle = uMouse.x * 3.14159 + uTime * 0.5;
+        float sheen = sin(p.x * 10.0 + angle + sin(p.y * 8.0 - uTime));
+        vec3 col = vec3(
+          sin(sheen * 3.14 + 0.0) * 0.5 + 0.5,
+          sin(sheen * 3.14 + 2.09) * 0.5 + 0.5,
+          sin(sheen * 3.14 + 4.18) * 0.5 + 0.5
+        );
+        float d = length(p - (uMouse - 0.5));
+        float glare = smoothstep(0.6, 0.0, d) * 0.6;
+        col += vec3(glare);
+        float alpha = (sheen * 0.15 + glare * 0.5) + 0.12;
+        gl_FragColor = vec4(col, alpha);
+      }
+    `;
+
+    const compileShader = (type, source) => {
+      const s = gl.createShader(type);
+      gl.shaderSource(s, source);
+      gl.compileShader(s);
+      return s;
+    };
+
+    const program = gl.createProgram();
+    gl.attachShader(program, compileShader(gl.VERTEX_SHADER, vsSource));
+    gl.attachShader(program, compileShader(gl.FRAGMENT_SHADER, fsSource));
+    gl.linkProgram(program);
+    gl.useProgram(program);
+
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
+
+    const posAttr = gl.getAttribLocation(program, "aPosition");
+    gl.enableVertexAttribArray(posAttr);
+    gl.vertexAttribPointer(posAttr, 2, gl.FLOAT, false, 0, 0);
+
+    const uRes = gl.getUniformLocation(program, "uResolution");
+    const uMouse = gl.getUniformLocation(program, "uMouse");
+    const uTime = gl.getUniformLocation(program, "uTime");
+
+    let mouseX = 0.5, mouseY = 0.5;
+    cardWrapper.addEventListener('mousemove', (e) => {
+      const rect = cardWrapper.getBoundingClientRect();
+      mouseX = (e.clientX - rect.left) / rect.width;
+      mouseY = 1.0 - (e.clientY - rect.top) / rect.height;
+    });
+
+    let startTime = performance.now();
+    function render() {
+      if (!canvas.clientWidth) return;
+      canvas.width = canvas.clientWidth * window.devicePixelRatio;
+      canvas.height = canvas.clientHeight * window.devicePixelRatio;
+      gl.viewport(0, 0, canvas.width, canvas.height);
+
+      gl.uniform2f(uRes, canvas.width, canvas.height);
+      gl.uniform2f(uMouse, mouseX, mouseY);
+      gl.uniform1f(uTime, (performance.now() - startTime) / 1000.0);
+
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+      requestAnimationFrame(render);
+    }
+    requestAnimationFrame(render);
+    cardWrapper.setAttribute('data-ready', 'true');
+  }
 </script>
 </body>
 </html>
