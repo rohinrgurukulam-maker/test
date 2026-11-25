@@ -146,15 +146,40 @@
 
   <!-- Top Navigation Header & Admin Bar -->
   <header class="sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
-    <div id="admin-bar" class="hidden bg-amber-500 text-slate-950 font-semibold px-4 py-1.5 text-xs sm:text-sm flex justify-between items-center shadow-inner">
+    <div id="admin-bar" class="hidden bg-amber-500 text-slate-950 font-semibold px-4 py-1.5 text-xs sm:text-sm flex flex-wrap justify-between items-center gap-2 shadow-inner">
       <div class="flex items-center gap-2">
         <i class="fa-solid fa-user-shield text-base"></i>
-        <span><strong>Admin Mode Active:</strong> You can edit every text, title, description, and image across the entire website.</span>
+        <span><strong>Admin Mode Active</strong></span>
       </div>
-      <div class="flex items-center gap-2">
-        <button onclick="openModal('editGlobalConfig')" class="bg-slate-900 text-white px-2.5 py-0.5 rounded text-xs transition hover:bg-slate-800"><i class="fa-solid fa-pen-to-square"></i> Edit Global Texts & Logo</button>
-        <button onclick="resetToDefaults()" class="bg-amber-700 hover:bg-amber-800 text-white px-2.5 py-0.5 rounded text-xs transition">Reset All</button>
-        <button onclick="logoutAdmin()" class="bg-slate-900 text-white px-2.5 py-0.5 rounded-md hover:bg-slate-800 transition text-xs flex items-center gap-1">
+      
+      <div class="flex flex-wrap items-center gap-2">
+        <input type="file" id="popup-file-input" accept="image/*" class="hidden" onchange="handlePosterUpload(event)" />
+        <button onclick="document.getElementById('popup-file-input').click()" class="bg-indigo-700 hover:bg-indigo-800 text-white px-2.5 py-1 rounded text-xs transition flex items-center gap-1 cursor-pointer">
+          <i class="fa-solid fa-image"></i> <span id="upload-popup-label">Upload Pop-Up Poster</span>
+        </button>
+<button onclick="document.getElementById('popup-file-input').click()" class="bg-indigo-700 hover:bg-indigo-800 text-white px-2.5 py-1 rounded text-xs transition flex items-center gap-1 cursor-pointer">
+          <i class="fa-solid fa-image"></i> <span id="upload-popup-label">Upload Pop-Up Poster</span>
+        </button>
+        <button onclick="setPosterByUrl()" class="bg-sky-700 hover:bg-sky-800 text-white px-2.5 py-1 rounded text-xs transition flex items-center gap-1 cursor-pointer">
+          <i class="fa-solid fa-link"></i> Poster Link
+        </button>
+        <button id="preview-popup-btn" onclick="previewWelcomePoster()" class="hidden bg-slate-800 hover:bg-slate-900 text-white px-2.5 py-1 rounded text-xs transition cursor-pointer">
+          <i class="fa-solid fa-eye"></i> Preview
+        </button>
+        <button id="delete-popup-btn" onclick="deleteWelcomePoster()" class="hidden bg-rose-700 hover:bg-rose-800 text-white px-2.5 py-1 rounded text-xs transition cursor-pointer">
+          <i class="fa-solid fa-trash"></i> Delete Poster
+        </button>
+
+        <span class="opacity-40">|</span>
+
+        <button id="bg-toggle-btn" onclick="toggleBackground()" class="bg-slate-900/20 hover:bg-slate-900/30 text-slate-950 px-2.5 py-1 rounded text-xs transition cursor-pointer">
+          BG: <span id="bg-status" class="font-bold">ON</span>
+        </button>
+        <button onclick="openModal('editGlobalConfig')" class="bg-slate-900 text-white px-2.5 py-1 rounded text-xs transition hover:bg-slate-800">
+          <i class="fa-solid fa-pen-to-square"></i> Edit Global Texts & Logo
+        </button>
+        <button onclick="resetToDefaults()" class="bg-amber-700 hover:bg-amber-800 text-white px-2.5 py-1 rounded text-xs transition">Reset All</button>
+        <button onclick="logoutAdmin()" class="bg-slate-900 text-white px-2.5 py-1 rounded-md hover:bg-slate-800 transition text-xs flex items-center gap-1">
           <i class="fa-solid fa-right-from-bracket"></i> Exit Admin
         </button>
       </div>
@@ -199,39 +224,6 @@
 
   <!-- Main View Area -->
   <main id="app-content" class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-
-<!-- PASTE THIS BLOCK RIGHT BEFORE </main> -->
-    <div class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
-      <span class="text-xs font-medium text-slate-500 dark:text-slate-400">
-        ⚙️ Admin Controls
-      </span>
-      <button id="bg-toggle-btn" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-medium transition-all cursor-pointer">
-        Background: <span id="bg-status" class="text-indigo-600 dark:text-amber-400 font-bold">ON</span>
-      </button>
-    </div>
-
-<!-- ADMIN POP-UP IMAGE MANAGER -->
-  <div class="mt-5 pt-4 border-t border-slate-200 dark:border-slate-800">
-    <div class="flex items-center justify-between mb-2">
-      <span class="text-xs font-semibold text-slate-600 dark:text-slate-300">
-        🖼️ Admin: Welcome Pop-Up Poster
-      </span>
-      <span id="popup-admin-status" class="text-[11px] font-medium text-slate-400">No poster set</span>
-    </div>
-
-    <div class="flex flex-wrap items-center gap-2">
-      <input type="file" id="popup-file-input" accept="image/*" class="hidden" />
-      <button id="upload-popup-btn" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium transition-colors cursor-pointer">
-        Upload / Change Image
-      </button>
-      <button id="preview-popup-btn" class="hidden px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-medium transition-colors cursor-pointer">
-        Preview
-      </button>
-      <button id="delete-popup-btn" class="hidden px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-medium transition-colors cursor-pointer">
-        Delete Poster
-      </button>
-    </div>
-  </div>
 
     <!-- Rendered dynamically -->
   </main>
@@ -2205,29 +2197,33 @@ function toggleCursorMode() {
   let popupTimer = null;
 
   function initWelcomePopup() {
+    const savedPoster = localStorage.getItem('newgurukulam_welcome_poster');
+    if (savedPoster) {
+      showWelcomeModal(savedPoster);
+    }
+    updatePopupAdminStatus();
+  }
+
+  function showWelcomeModal(imageSrc) {
     const popup = document.getElementById('welcome-popup');
     const img = document.getElementById('welcome-popup-img');
     const progress = document.getElementById('popup-progress');
-    const savedPoster = localStorage.getItem('newgurukulam_welcome_poster');
+    if (!popup || !img) return;
 
-    if (savedPoster && popup && img) {
-      img.src = savedPoster;
-      popup.classList.remove('hidden');
-      
-      if (progress) {
-        progress.style.transition = 'none';
-        progress.style.width = '100%';
-        setTimeout(() => {
-          progress.style.transition = 'width 5000ms linear';
-          progress.style.width = '0%';
-        }, 50);
-      }
+    img.src = imageSrc;
+    popup.classList.remove('hidden');
 
-      popupTimer = setTimeout(() => {
-        closeWelcomePopup();
-      }, 5000);
+    if (progress) {
+      progress.style.transition = 'none';
+      progress.style.width = '100%';
+      setTimeout(() => {
+        progress.style.transition = 'width 5000ms linear';
+        progress.style.width = '0%';
+      }, 50);
     }
-    updatePopupAdminStatus();
+
+    if (popupTimer) clearTimeout(popupTimer);
+    popupTimer = setTimeout(closeWelcomePopup, 5000);
   }
 
   function closeWelcomePopup() {
@@ -2237,86 +2233,100 @@ function toggleCursorMode() {
   }
 
   function updatePopupAdminStatus() {
-    const statusEl = document.getElementById('popup-admin-status');
+    const labelEl = document.getElementById('upload-popup-label');
     const previewBtn = document.getElementById('preview-popup-btn');
     const deleteBtn = document.getElementById('delete-popup-btn');
     const savedPoster = localStorage.getItem('newgurukulam_welcome_poster');
 
-    if (statusEl) {
-      if (savedPoster) {
-        statusEl.textContent = 'Poster Active';
-        statusEl.className = 'text-[11px] font-bold text-emerald-500';
-        if (previewBtn) previewBtn.classList.remove('hidden');
-        if (deleteBtn) deleteBtn.classList.remove('hidden');
-      } else {
-        statusEl.textContent = 'No poster set';
-        statusEl.className = 'text-[11px] font-medium text-slate-400';
-        if (previewBtn) previewBtn.classList.add('hidden');
-        if (deleteBtn) deleteBtn.classList.add('hidden');
-      }
+    if (savedPoster) {
+      if (labelEl) labelEl.textContent = 'Change Poster';
+      if (previewBtn) previewBtn.classList.remove('hidden');
+      if (deleteBtn) deleteBtn.classList.remove('hidden');
+    } else {
+      if (labelEl) labelEl.textContent = 'Upload Pop-Up Poster';
+      if (previewBtn) previewBtn.classList.add('hidden');
+      if (deleteBtn) deleteBtn.classList.add('hidden');
     }
   }
 
-  // Bind Admin Upload / Preview / Delete and Close button events
+  function handlePosterUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 900;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > MAX_WIDTH) {
+          height *= MAX_WIDTH / width;
+          width = MAX_WIDTH;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        try {
+          localStorage.setItem('newgurukulam_welcome_poster', compressedDataUrl);
+          updatePopupAdminStatus();
+          showWelcomeModal(compressedDataUrl);
+        } catch (err) {
+          alert('Image could not be saved (storage full). Try a smaller image.');
+        }
+      };
+      img.src = evt.target.result;
+    };
+    reader.readAsDataURL(file);
+    event.target.value = '';
+  }
+  // PASTE RIGHT HERE:
+  function setPosterByUrl() {
+    const currentUrl = localStorage.getItem('newgurukulam_welcome_poster') || '';
+    const enteredUrl = prompt('Paste the direct image URL / link for the welcome pop-up poster:', currentUrl.startsWith('data:') ? '' : currentUrl);
+
+    if (enteredUrl === null) return;
+
+    const trimmedUrl = enteredUrl.trim();
+    if (!trimmedUrl) {
+      alert('Please enter a valid image link or URL.');
+      return;
+    }
+
+    try {
+      localStorage.setItem('newgurukulam_welcome_poster', trimmedUrl);
+      updatePopupAdminStatus();
+      showWelcomeModal(trimmedUrl);
+    } catch (err) {
+      alert('Could not save the poster link.');
+    }
+  }
+  function previewWelcomePoster() {
+    const savedPoster = localStorage.getItem('newgurukulam_welcome_poster');
+    if (savedPoster) {
+      showWelcomeModal(savedPoster);
+    }
+  }
+
+  function deleteWelcomePoster() {
+    if (confirm('Delete the welcome pop-up poster?')) {
+      localStorage.removeItem('newgurukulam_welcome_poster');
+      closeWelcomePopup();
+      updatePopupAdminStatus();
+    }
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     const closeBtn = document.getElementById('close-popup-btn');
     if (closeBtn) closeBtn.addEventListener('click', closeWelcomePopup);
-
-    const uploadBtn = document.getElementById('upload-popup-btn');
-    const fileInput = document.getElementById('popup-file-input');
-    if (uploadBtn && fileInput) {
-      uploadBtn.addEventListener('click', () => fileInput.click());
-      fileInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = (evt) => {
-            localStorage.setItem('newgurukulam_welcome_poster', evt.target.result);
-            updatePopupAdminStatus();
-            alert('Welcome pop-up poster uploaded successfully!');
-          };
-          reader.readAsDataURL(file);
-        }
-      });
-    }
-
-    const previewBtn = document.getElementById('preview-popup-btn');
-    if (previewBtn) {
-      previewBtn.addEventListener('click', () => {
-        const savedPoster = localStorage.getItem('newgurukulam_welcome_poster');
-        if (savedPoster) {
-          const popup = document.getElementById('welcome-popup');
-          const img = document.getElementById('welcome-popup-img');
-          const progress = document.getElementById('popup-progress');
-          if (popup && img) {
-            img.src = savedPoster;
-            popup.classList.remove('hidden');
-            if (progress) {
-              progress.style.transition = 'none';
-              progress.style.width = '100%';
-              setTimeout(() => {
-                progress.style.transition = 'width 5000ms linear';
-                progress.style.width = '0%';
-              }, 50);
-            }
-            if (popupTimer) clearTimeout(popupTimer);
-            popupTimer = setTimeout(closeWelcomePopup, 5000);
-          }
-        }
-      });
-    }
-
-    const deleteBtn = document.getElementById('delete-popup-btn');
-    if (deleteBtn) {
-      deleteBtn.addEventListener('click', () => {
-        if (confirm('Delete the welcome pop-up poster?')) {
-          localStorage.removeItem('newgurukulam_welcome_poster');
-          updatePopupAdminStatus();
-          alert('Welcome poster deleted.');
-        }
-      });
-    }
   });
+
    window.onload = function() {
       loadState();
       updateAdminUI();
